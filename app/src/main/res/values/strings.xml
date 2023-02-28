@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">NeWork</string>
+    <string name="authentication">Authentication</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign in</string>
+    <string name="are_you_have_not_account">Are you have not account?</string>
+    <string name="home">Home</string>
+    <string name="post">Post</string>
+    <string name="job">Job</string>
+</resources>
