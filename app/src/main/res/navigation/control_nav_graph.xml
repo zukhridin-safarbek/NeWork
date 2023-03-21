@@ -2,11 +2,25 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/control_nav_graph">
+    android:id="@+id/control_nav_graph"
+    app:startDestination="@id/logInFragment">
 
     <fragment
-        android:id="@+id/authenticationFragment"
-        android:name="kg.zukhridin.nework.fragments.AuthenticationFragment"
+        android:id="@+id/logInFragment"
+        android:name="kg.zukhridin.nework.fragments.LogInFragment"
         android:label="fragment_authentication"
-        tools:layout="@layout/fragment_authentication" />
+        tools:layout="@layout/fragment_log_in" >
+        <action
+            android:id="@+id/action_authenticationFragment_to_registrationFragment"
+            app:destination="@id/signInFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/signInFragment"
+        android:name="kg.zukhridin.nework.fragments.SignInFragment"
+        android:label="fragment_registration"
+        tools:layout="@layout/fragment_sign_in" >
+        <action
+            android:id="@+id/action_registrationFragment_to_authenticationFragment"
+            app:destination="@id/logInFragment" />
+    </fragment>
 </navigation>

@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kg.zukhridin.nework.BuildConfig
+import kg.zukhridin.nework.database.AppAuth
 import kg.zukhridin.nework.service.APIService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -27,11 +28,23 @@ object APIModule {
 
     @Provides
     @Singleton
-    fun provideHttpClient(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient =
-        OkHttpClient.Builder()
+    fun provideHttpClient(
+        loggingInterceptor: HttpLoggingInterceptor,
+        appAuth: AppAuth,
+    ): OkHttpClient {
+        return OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .addInterceptor(loggingInterceptor)
+            .addInterceptor { chain ->
+                val request = appAuth.authStateFlow.value?.token?.let {
+                    chain.request().newBuilder()
+                        .addHeader("Authorization", it)
+                        .build()
+                } ?: chain.request()
+                chain.proceed(request)
+            }
             .build()
+    }
 
     @Provides
     @Singleton

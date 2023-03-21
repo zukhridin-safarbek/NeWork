@@ -4,8 +4,33 @@
     <string name="login">Login</string>
     <string name="password">Password</string>
     <string name="sign_in">Sign in</string>
-    <string name="are_you_have_not_account">Are you have not account?</string>
+    <string name="are_you_have_not_account">Are you have not an account?</string>
     <string name="home">Home</string>
     <string name="post">Post</string>
     <string name="job">Job</string>
+    <string name="profile">Profile</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="name">Name</string>
+    <string name="camera">Camera</string>
+    <string name="are_you_have_an_account">Are you have an account?</string>
+    <string name="clear_image">Clear image</string>
+    <string name="sign_up">Sign up</string>
+    <string name="gallery">Gallery</string>
+    <string name="logout">Logout</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+    <string name="log_in">Log in</string>
+    <string name="notification">Notification</string>
+    <string name="description">Description</string>
+    <string name="_21">21</string>
+    <string name="_11">11</string>
+    <string name="_2001">2001</string>
+    <string name="like">Like</string>
+    <string name="comment">Comment</string>
+    <string name="share">Share</string>
+    <string name="message">Message</string>
+    <string name="more">more</string>
+    <string name="coordination">Coordination</string>
+    <string name="edit_profile">Edit profile</string>
 </resources>

@@ -1,6 +1,6 @@
 package kg.zukhridin.nework.dto
 
-data class UserAuthDto (
-    val id: Long,
+data class Token (
+    val id: Int,
     val token: String
         )

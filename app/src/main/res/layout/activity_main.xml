@@ -14,8 +14,8 @@
         app:defaultNavHost="true"
         app:layout_constraintBottom_toTopOf="@id/bnv"
         app:layout_constraintTop_toTopOf="parent"
-        app:navGraph="@navigation/nav_graph"
-        tools:context=".MainActivity" />
+        app:navGraph="@navigation/nav_graph" />
+
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bnv"
@@ -31,4 +31,5 @@
         app:menu="@menu/bnv_menu">
 
     </com.google.android.material.bottomnavigation.BottomNavigationView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
