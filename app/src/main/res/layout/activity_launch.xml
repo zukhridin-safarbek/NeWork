@@ -5,5 +5,4 @@
     android:layout_height="match_parent"
     android:contentDescription="@string/app_name"
     android:padding="42dp"
-    android:src="@drawable/logo_nework"
-    tools:context=".fragments.SplashScreenFragment" />
+    android:src="@drawable/logo_nework" />
