@@ -102,17 +102,21 @@ class SignInFragment : Fragment() {
     }
 
     private fun userSignIn() {
-        userSignInFromVM()
-        userVM.userAuthResponseCode.observe(viewLifecycleOwner) {
-            if (it.code.toString()[0] == '2') {
-                savePhotoNull()
-                OpenActivity.startFromFragment(requireActivity(), MainActivity::class.java)
-            } else {
-                CustomToast.showShort(
-                    requireContext(),
-                    "code - ${it.code}, message - ${it.message}"
-                )
+        if (binding.password.text.equals(binding.confPassword.text)) {
+            userSignInFromVM()
+            userVM.userAuthResponseCode.observe(viewLifecycleOwner) {
+                if (it.code.toString()[0] == '2') {
+                    savePhotoNull()
+                    OpenActivity.startFromFragment(requireActivity(), MainActivity::class.java)
+                } else {
+                    CustomToast.showShort(
+                        requireContext(),
+                        "code - ${it.code}, message - ${it.message}"
+                    )
+                }
             }
+        } else {
+            binding.confPassword.error = "Passwords not equal!"
         }
     }
 

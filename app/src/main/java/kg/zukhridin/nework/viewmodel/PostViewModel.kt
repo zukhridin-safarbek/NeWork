@@ -38,18 +38,26 @@ class PostViewModel @Inject constructor(
         get() = _photo
     private val _posts = MutableLiveData<List<Post>>()
     val posts: LiveData<List<Post>> = _posts
+
+    private val _walls = MutableLiveData<List<Post>>()
+    val walls: LiveData<List<Post>> = _walls
     private val _state = MutableLiveData<StateModel>()
     val state: LiveData<StateModel>
         get() = _state
 
     init {
         getPosts()
+        getWalls()
     }
 
     private fun getPosts() = viewModelScope.launch {
         postDao.getPosts().collectLatest {
             _posts.value = it.map(PostEntity::toDto)
         }
+    }
+
+    private fun getWalls() = viewModelScope.launch {
+        _walls.value = repository.getWalls()
     }
 
     fun likeById(post: Post) {
@@ -65,4 +73,6 @@ class PostViewModel @Inject constructor(
     fun savePhoto(uri: Uri?, file: File?) {
         _photo.value = PhotoModel(uri, file)
     }
+
+
 }

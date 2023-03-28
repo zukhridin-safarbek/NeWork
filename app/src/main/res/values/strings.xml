@@ -33,4 +33,8 @@
     <string name="more">more</string>
     <string name="coordination">Coordination</string>
     <string name="edit_profile">Edit profile</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="content">Content</string>
+    <string name="link">Link</string>
+    <string name="new_post">New post</string>
 </resources>

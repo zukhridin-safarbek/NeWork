@@ -37,23 +37,22 @@ class UserRepositoryImpl @Inject constructor(
             val id = response.body()?.id
             val token = response.body()?.token
             if (id != null && token != null) {
-                    users.map {list->
-                        list?.map { user ->
-                            if (user.login == login) {
-                                appAuth.setAuth(
-                                    id,
-                                    token,
-                                    user.name,
-                                    user.avatar ?: "null"
-                                )
-                                _userAuthResponseCode.value = ApiResult.Success(
-                                    response.code().toString(),
-                                    response.body()
-                                )
-                            }
+                users.map { list ->
+                    list?.map { user ->
+                        if (user.login == login) {
+                            appAuth.setAuth(
+                                id,
+                                token,
+                                user.name,
+                                user.avatar ?: "null"
+                            )
+                            _userAuthResponseCode.value = ApiResult.Success(
+                                response.code().toString(),
+                                response.body()
+                            )
                         }
                     }
-
+                }
 
 
             }
@@ -122,18 +121,18 @@ class UserRepositoryImpl @Inject constructor(
 
             }
             _userAuthResponseCode.value = (
-                ApiResult.Success(
-                    response.code().toString(),
-                    data = response.body()
-                )
-            )
+                    ApiResult.Success(
+                        response.code().toString(),
+                        data = response.body()
+                    )
+                    )
         } else {
             _userAuthResponseCode.value = (
-                ApiResult.Error(
-                    code = response.code().toString(),
-                    message = response.message()
-                )
-            )
+                    ApiResult.Error(
+                        code = response.code().toString(),
+                        message = response.message()
+                    )
+                    )
         }
 
     }

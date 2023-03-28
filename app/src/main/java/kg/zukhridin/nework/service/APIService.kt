@@ -38,10 +38,16 @@ interface APIService {
     suspend fun getLatestPosts(@Query("count") count: Int): Response<List<PostEntity>>
 
     @GET("posts/{post_id}/before/")
-    suspend fun getBeforePosts(@Path("post_id") id: Int, @Query("count") count: Int): Response<List<PostEntity>>
+    suspend fun getBeforePosts(
+        @Path("post_id") id: Int,
+        @Query("count") count: Int
+    ): Response<List<PostEntity>>
 
     @GET("posts/{post_id}/after/")
-    suspend fun getAfterPosts(@Path("post_id") id: Int, @Query("count") count: Int): Response<List<PostEntity>>
+    suspend fun getAfterPosts(
+        @Path("post_id") id: Int,
+        @Query("count") count: Int
+    ): Response<List<PostEntity>>
 
     @POST("posts/{post_id}/likes/")
     suspend fun likeById(
@@ -55,4 +61,7 @@ interface APIService {
 
     @POST("posts/")
     suspend fun insertPost(@Body post: Post): Response<Unit>
+
+    @GET("{author_id}/wall/")
+    suspend fun getWalls(@Path("author_id") author_id: Int): Response<List<Post>>
 }

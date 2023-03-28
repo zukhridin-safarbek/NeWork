@@ -77,4 +77,15 @@ class PostRepositoryImpl @Inject constructor(
         }
         ApiResult.Success<Unit>(response.code().toString(), response.body() ?: Unit)
     }
+
+    override suspend fun getWalls(): List<Post> {
+        val response = service.getWalls(appAuth.authStateFlow.value?.id ?: 0)
+        return if (response.isSuccessful) {
+            ApiResult.Success(response.code().toString(), response.body())
+            response.body() ?: emptyList()
+        } else {
+            ApiResult.Error(response.code().toString(), response.message(), response.body())
+            emptyList<Post>()
+        }
+    }
 }

@@ -10,8 +10,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toFile
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
 import dagger.hilt.android.AndroidEntryPoint
+import kg.zukhridin.nework.R
 import kg.zukhridin.nework.database.AppAuth
 import kg.zukhridin.nework.databinding.FragmentNewPostBinding
 import kg.zukhridin.nework.dto.Attachment
@@ -24,21 +26,12 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 @OptIn(ExperimentalCoroutinesApi::class)
-class NewPostFragment : Fragment() {
+class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener {
     private lateinit var binding: FragmentNewPostBinding
     private val postVM: PostViewModel by viewModels()
-    private val imageLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            when (it.resultCode) {
-                ImagePicker.RESULT_ERROR -> {
-                    Toast.makeText(requireContext(), "${it.resultCode}", Toast.LENGTH_SHORT).show()
-                }
-                Activity.RESULT_OK -> {
-                    val uri = it.data?.data
-                    postVM.savePhoto(uri, uri?.toFile())
-                }
-            }
-        }
+
+    @Inject
+    lateinit var newPostFragmentDialog: NewPostFragmentDialog
 
     @Inject
     lateinit var appAuth: AppAuth
@@ -76,9 +69,11 @@ class NewPostFragment : Fragment() {
                     ownedByMe = true,
                     likedByMe = false
                 ),
-
                 it
             )
+        }
+        binding.openDialog.setOnClickListener {
+            findNavController().navigate(R.id.action_newPostFragment_to_newPostFromSideFragment)
         }
         println("token: ${appAuth.authStateFlow.value?.token}")
     }
@@ -98,5 +93,13 @@ class NewPostFragment : Fragment() {
 //                post
 //            )
 //        }
+    }
+
+    private fun openBottomSheet() {
+        newPostFragmentDialog.show(parentFragmentManager, NewPostFragmentDialog.TAG)
+    }
+
+    override fun onItemClick(item: String?) {
+        Toast.makeText(requireContext(), item, Toast.LENGTH_SHORT).show()
     }
 }

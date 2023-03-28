@@ -48,7 +48,6 @@ class LogInFragment : Fragment() {
 
     private fun userLogInCheck() {
         vm.userAuthResponseCode.observe(viewLifecycleOwner) { response ->
-                println("response: $response")
             when (response) {
                 is ApiResult.Success -> {
                     if (response.code.toString()[0] == '2') {

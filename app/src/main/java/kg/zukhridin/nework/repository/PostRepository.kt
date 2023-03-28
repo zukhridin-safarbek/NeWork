@@ -9,4 +9,5 @@ interface PostRepository {
     suspend fun getPosts(): List<Post>?
     suspend fun likeById(post: Post)
     suspend fun insertPostToService(post: Post)
+    suspend fun getWalls(): List<Post>
 }

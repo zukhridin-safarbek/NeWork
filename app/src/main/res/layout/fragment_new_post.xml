@@ -6,8 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".fragments.NewPostFragment">
 
-    <TextView
-        android:id="@+id/textView3"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/openDialog"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/post"

@@ -13,7 +13,15 @@
         android:id="@+id/newPostFragment"
         android:name="kg.zukhridin.nework.fragments.NewPostFragment"
         android:label="fragment_new_post"
-        tools:layout="@layout/fragment_new_post" />
+        tools:layout="@layout/fragment_new_post" >
+        <action
+            android:id="@+id/action_newPostFragment_to_newPostFromSideFragment"
+            app:destination="@id/newPostFromSideFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
     <fragment
         android:id="@+id/jobFragment"
         android:name="kg.zukhridin.nework.fragments.JobFragment"
@@ -29,4 +37,9 @@
         android:name="kg.zukhridin.nework.fragments.ProfileFragment"
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile" />
+    <fragment
+        android:id="@+id/newPostFromSideFragment"
+        android:name="kg.zukhridin.nework.fragments.NewPostGalleryFragment"
+        android:label="fragment_new_post_from_side"
+        tools:layout="@layout/fragment_new_post_gallery" />
 </navigation>

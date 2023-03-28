@@ -43,9 +43,10 @@ class UserViewModel @Inject constructor(
     private fun getUsers() = viewModelScope.launch {
         repository.getUsers()
         val res = repository.userResponseCode
+
         when (res.value) {
             is ApiResult.Success -> {
-                _users.postValue(res.value?.data)
+                _users.value = (res.value?.data)
             }
             else -> {
                 _users.postValue(null)
