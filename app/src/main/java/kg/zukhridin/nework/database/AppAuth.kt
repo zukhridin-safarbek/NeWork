@@ -18,34 +18,28 @@ class AppAuth @Inject constructor(
     private val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
     private val idKey = "id"
     private val tokenKey = "token"
-    private val nameKey = "name"
-    private val avatarKey = "avatar"
 
     private val _authStateFlow = MutableStateFlow<UserAuthState?>(null)
 
     init {
         val id = prefs.getInt(idKey, 0)
         val token = prefs.getString(tokenKey, null)
-        val avatar = prefs.getString(avatarKey, null)
-        val name = prefs.getString(nameKey, null)
 
         if (id == 0 || token == null) {
             prefs.edit { clear() }
         } else {
-            _authStateFlow.value = UserAuthState(id, token, name ?: "name", avatar ?: "")
+            _authStateFlow.value = UserAuthState(id, token)
         }
     }
 
     val authStateFlow: StateFlow<UserAuthState?> = _authStateFlow.asStateFlow()
 
     @Synchronized
-    fun setAuth(id: Int, token: String, name: String, avatar: String) {
-        _authStateFlow.value = UserAuthState(id, token, name, avatar)
+    fun setAuth(id: Int, token: String) {
+        _authStateFlow.value = UserAuthState(id, token)
         with(prefs.edit()) {
             putInt(idKey, id)
             putString(tokenKey, token)
-            putString(nameKey, name)
-            putString(avatarKey, avatar)
             apply()
         }
     }

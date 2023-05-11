@@ -40,11 +40,7 @@ class PostRemoteMediator(
                 ApiResult.Success(result.code().toString(), result.body())
             }
             val data = result.body().orEmpty()
-
             postDao.insertPosts(data)
-
-
-
             return MediatorResult.Success(data.isEmpty())
         } catch (e: Exception) {
             return MediatorResult.Error(e)

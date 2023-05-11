@@ -7,9 +7,12 @@
     <string name="are_you_have_not_account">Are you have not an account?</string>
     <string name="home">Home</string>
     <string name="post">Post</string>
+    <string name="posts_lowercase">posts</string>
+    <string name="jobs_lowercase">jobs</string>
     <string name="job">Job</string>
     <string name="profile">Profile</string>
-    <!-- TODO: Remove or change this placeholder text -->
+    <string name="this_login_already_exists">This login already exists</string>
+    <string name="passwords_do_not_match">Passwords do not match</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="name">Name</string>
     <string name="camera">Camera</string>
@@ -31,6 +34,49 @@
     <string name="share">Share</string>
     <string name="message">Message</string>
     <string name="more">more</string>
+    <string name="less">less</string>
     <string name="coordination">Coordination</string>
     <string name="edit_profile">Edit profile</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="content">Content</string>
+    <string name="link">Link</string>
+    <string name="new_post">New post</string>
+    <string name="write_a_caption">Write a caption…</string>
+    <string name="tag_people">Tag people</string>
+    <string name="add_location">Add location</string>
+    <string name="media_type">Media type</string>
+    <string name="something_went_wrong">Oops, something went wrong</string>
+    <string name="you_are_have_not_any_media">You are have not any media!</string>
+    <string name="update">Update</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="you_are_have_not_internet">You are have not internet</string>
+    <string name="folder_permission_attention">Folder permission denied! set granted or create post without Media!</string>
+    <string name="create_post">Create post</string>
+    <string name="set_folder_permission">Set folder permission</string>
+    <string name="mention_people">Mention people</string>
+    <string name="you_have_already_mentioned_this_person">You have already mentioned this person</string>
+    <string name="old_text">Old text</string>
+    <string name="user_detail">User detail</string>
+    <string name="image">Image</string>
+    <string name="video">Video</string>
+    <string name="audio">Audio</string>
+    <string name="user">User</string>
+    <string name="zukhridin_safarbek_uulu">Zukhridin Safarbek uulu</string>
+    <string name="oshsu">OSHSU</string>
+    <string name="position">Position</string>
+    <string name="_12_08_1904">12.08.1904</string>
+    <string name="start">Start</string>
+    <string name="finish">Finish</string>
+    <string name="the_user_has_not_worked_anywhere_or_the_place_of_work_has_not_been_entered">The user has not worked anywhere or the place of work has not been entered</string>
+    <string name="add_job">Add job</string>
+    <string name="without_media">Without media</string>
+    <string name="images_lowercase">images</string>
+    <string name="videos_lowercase">videos</string>
+    <string name="audios_lowercase">audios</string>
+    <string name="no_media_lowercase">no-media</string>
+    <string-array name="gallery_media_name_data_array">
+        <item>Image</item>
+        <item>Video</item>
+    </string-array>
 </resources>

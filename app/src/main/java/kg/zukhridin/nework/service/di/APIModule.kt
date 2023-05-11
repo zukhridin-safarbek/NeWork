@@ -32,18 +32,22 @@ object APIModule {
         loggingInterceptor: HttpLoggingInterceptor,
         appAuth: AppAuth,
     ): OkHttpClient {
-        return OkHttpClient.Builder()
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .addInterceptor(loggingInterceptor)
-            .addInterceptor { chain ->
-                val request = appAuth.authStateFlow.value?.token?.let {
-                    chain.request().newBuilder()
-                        .addHeader("Authorization", it)
-                        .build()
-                } ?: chain.request()
-                chain.proceed(request)
-            }
-            .build()
+        return try {
+            OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .addInterceptor(loggingInterceptor)
+                .addInterceptor { chain ->
+                    val request = appAuth.authStateFlow.value?.token?.let {
+                        chain.request().newBuilder()
+                            .addHeader("Authorization", it)
+                            .build()
+                    } ?: chain.request()
+                    chain.proceed(request)
+                }
+                .build()
+        }catch (e: Exception){
+            throw Exception(e.message)
+        }
     }
 
     @Provides

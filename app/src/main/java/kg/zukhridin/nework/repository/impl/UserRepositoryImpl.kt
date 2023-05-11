@@ -1,21 +1,20 @@
 package kg.zukhridin.nework.repository.impl
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.map
 import kg.zukhridin.nework.database.AppAuth
-import kg.zukhridin.nework.dto.Post
 import kg.zukhridin.nework.dto.Token
 import kg.zukhridin.nework.dto.User
 import kg.zukhridin.nework.exceptions.ApiResult
+import kg.zukhridin.nework.model.ErrorResponseModel
 import kg.zukhridin.nework.model.PhotoModel
-import kg.zukhridin.nework.model.UserResponse
 import kg.zukhridin.nework.repository.UserRepository
 import kg.zukhridin.nework.service.APIService
-import kotlinx.coroutines.flow.map
+import kg.zukhridin.nework.usecase.GetUserByIdFromServerUseCase
+import kg.zukhridin.nework.usecase.UserRegistrationWithPhotoUseCase
+import kg.zukhridin.nework.usecase.UserAuthenticationUseCase
+import kg.zukhridin.nework.usecase.UserRegistrationWithOutPhotoUseCase
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
@@ -31,40 +30,8 @@ class UserRepositoryImpl @Inject constructor(
         get() = _userAuthResponseCode
     private val users = mutableListOf<List<User>?>()
 
-    override suspend fun userLogIn(login: String, password: String) {
-        val response = service.userLogIn(login, password)
-        if (response.isSuccessful) {
-            val id = response.body()?.id
-            val token = response.body()?.token
-            if (id != null && token != null) {
-                    users.map {list->
-                        list?.map { user ->
-                            if (user.login == login) {
-                                appAuth.setAuth(
-                                    id,
-                                    token,
-                                    user.name,
-                                    user.avatar ?: "null"
-                                )
-                                _userAuthResponseCode.value = ApiResult.Success(
-                                    response.code().toString(),
-                                    response.body()
-                                )
-                            }
-                        }
-                    }
-
-
-
-            }
-
-        } else {
-            _userAuthResponseCode.value =
-                ApiResult.Error(
-                    code = response.code().toString(),
-                    message = response.message().toString(),
-                )
-        }
+    override suspend fun userAuthentication(login: String, password: String): Pair<Boolean, ErrorResponseModel?> {
+        return UserAuthenticationUseCase(service, appAuth).userAuthentication(login, password)
     }
 
 
@@ -84,57 +51,25 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun userSignIn(
+    override suspend fun getUserById(userId: Int): User? {
+        return GetUserByIdFromServerUseCase(service).getUserByIdFromServerUseCase(userId)
+    }
+
+    override suspend fun registrationWithPhoto(
         login: String,
         password: String,
         name: String,
         photo: PhotoModel,
-    ) {
-        val response = service.userSignIn(
-            login.toRequestBody("text/plain".toMediaType()),
-            password.toRequestBody("text/plain".toMediaType()),
-            name.toRequestBody("text/plain".toMediaType()),
-            MultipartBody.Part.createFormData(
-                "file",
-                photo.file?.name,
-                requireNotNull(photo.file?.asRequestBody())
-            )
+    ): Pair<Boolean, ErrorResponseModel?> {
+        return UserRegistrationWithPhotoUseCase(service, appAuth).userRegistrationWithPhotoUseCase(
+            login,
+            password,
+            name,
+            photo
         )
-        if (response.isSuccessful) {
-            val id = response.body()?.id
-            val token = response.body()?.token
-            if (id != null && token != null) {
-                userResponseCode.let { res ->
-                    res.map { list ->
-                        list.data?.map { user ->
-                            if (user.login == login) {
-                                appAuth.setAuth(
-                                    id,
-                                    token,
-                                    user.name,
-                                    user.avatar ?: "null"
-                                )
-                            }
-                        }
-                    }
+    }
 
-                }
-
-            }
-            _userAuthResponseCode.value = (
-                ApiResult.Success(
-                    response.code().toString(),
-                    data = response.body()
-                )
-            )
-        } else {
-            _userAuthResponseCode.value = (
-                ApiResult.Error(
-                    code = response.code().toString(),
-                    message = response.message()
-                )
-            )
-        }
-
+    override suspend fun registrationWithOutPhoto(login: String, password: String, name: String): Pair<Boolean, ErrorResponseModel?> {
+        return UserRegistrationWithOutPhotoUseCase(service, appAuth).userRegistrationWithOutPhotoUseCase(login, password, name)
     }
 }

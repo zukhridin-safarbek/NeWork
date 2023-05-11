@@ -1,14 +1,15 @@
 package kg.zukhridin.nework.repository.impl
 
+import android.content.Context
 import androidx.paging.*
 import kg.zukhridin.nework.database.AppAuth
 import kg.zukhridin.nework.database.dao.PostDao
-import kg.zukhridin.nework.dto.Post
+import kg.zukhridin.nework.dto.*
 import kg.zukhridin.nework.entity.PostEntity
-import kg.zukhridin.nework.exceptions.ApiResult
 import kg.zukhridin.nework.paging.PostRemoteMediator
 import kg.zukhridin.nework.repository.PostRepository
 import kg.zukhridin.nework.service.APIService
+import kg.zukhridin.nework.usecase.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -29,52 +30,53 @@ class PostRepositoryImpl @Inject constructor(
         it.map(PostEntity::toDto)
     }
 
-    private val posts = mutableListOf<Post>()
-    override suspend fun getPosts(): List<Post>? {
-        val response = service.getPosts()
-        return if (response.isSuccessful) {
-            response.body()?.map {
-                posts.add(it)
-//                postDao.insertPost(PostEntity.fromDto(it))
-            }
-            response.body()
-        } else {
-            response.body()
-        }
-    }
-
     override suspend fun likeById(post: Post) {
-        val list = post.likeOwnerIds.toMutableList()
-        if (!post.likedByMe) {
-            service.likeById(post.id)
-            list.add(appAuth.authStateFlow.value?.id!!)
-            postDao.likedById(
-                PostEntity.fromDto(
-                    post.copy(
-                        likeOwnerIds = list,
-                        likedByMe = true
-                    )
-                )
+        appAuth.authStateFlow.value?.id?.let { userId ->
+            LikeByIdFromServerUseCase(service).likeByIdFromServer(
+                post
             )
-        } else {
-            list.remove(appAuth.authStateFlow.value?.id!!)
-            postDao.likedById(
-                PostEntity.fromDto(
-                    post.copy(
-                        likeOwnerIds = list,
-                        likedByMe = false
-                    )
-                )
-            )
-            service.dislikeById(post.id)
+            LikeByIdFromExternalStorageUseCase(postDao).likeByIdFromExternalStorage(post, userId)
         }
     }
 
-    override suspend fun insertPostToService(post: Post) {
-        val response = service.insertPost(post)
-        if (!response.isSuccessful) {
-            ApiResult.Error<Unit>(response.code().toString(), response.message())
-        }
-        ApiResult.Success<Unit>(response.code().toString(), response.body() ?: Unit)
+    override suspend fun getPostById(postId: Int): Post {
+        return GetPostByIdFromServerUseCase(service).getPostByIdFromServer(postId)
+    }
+
+    override suspend fun getWall(userId: Int): Map<Int, List<Post>> {
+        return GetWallFromServerUseCase(service).getWallFromServerUseCase(userId)
+    }
+
+    override suspend fun insertPostToService(post: Post): Boolean {
+        return SavePostToServerUseCase(service).savePostToServer(post)
+    }
+
+    override suspend fun deletePostByIdFromServer(id: Int) {
+        DeletePostByIdFromServerUseCase(service).deletePostByIdFromServer(id)
+    }
+
+    override suspend fun deletePostByIdFromExternalStorage(id: Int) {
+        DeletePostByIdFromExternalStorageUseCase(postDao).deletePostByIdFromExternalStorage(id)
+    }
+
+
+    override suspend fun updatePostByIdFromServer(post: Post) {
+        UpdatePostByIdFromServerUseCase(service).updatePostByIdFromServer(post)
+    }
+
+    override suspend fun updatePostByIdFromExternalStorage(post: Post) {
+        UpdatePostByIdFromExternalStorageUseCase(postDao).updatePostByIdFromExternalStorage(post)
+    }
+
+    override suspend fun getImagesFromGallery(context: Context): ArrayList<CustomMedia> {
+        return ImagesFromExternalStorageUseCase.imagesFromExternalStorage(context)
+    }
+
+    override suspend fun getVideosFromGallery(context: Context): ArrayList<CustomMedia> {
+        return VideosFromExternalStorageUseCase.videosFromExternalStorage(context)
+    }
+
+    override suspend fun getAudiosFromGallery(context: Context): ArrayList<CustomMedia> {
+        return AudiosFromExternalStorageUseCase.audiosFromExternalStorageUseCase(context)
     }
 }
