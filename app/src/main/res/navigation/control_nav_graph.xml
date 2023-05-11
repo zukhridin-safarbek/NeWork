@@ -7,18 +7,18 @@
 
     <fragment
         android:id="@+id/logInFragment"
-        android:name="kg.zukhridin.nework.fragments.LogInFragment"
+        android:name="kg.zukhridin.nework.fragments.UserAuthenticationFragment"
         android:label="fragment_authentication"
-        tools:layout="@layout/fragment_log_in" >
+        tools:layout="@layout/fragment_user_authentication" >
         <action
             android:id="@+id/action_authenticationFragment_to_registrationFragment"
             app:destination="@id/signInFragment" />
     </fragment>
     <fragment
         android:id="@+id/signInFragment"
-        android:name="kg.zukhridin.nework.fragments.SignInFragment"
+        android:name="kg.zukhridin.nework.fragments.UserRegistrationFragment"
         android:label="fragment_registration"
-        tools:layout="@layout/fragment_sign_in" >
+        tools:layout="@layout/fragment_user_registration" >
         <action
             android:id="@+id/action_registrationFragment_to_authenticationFragment"
             app:destination="@id/logInFragment" />

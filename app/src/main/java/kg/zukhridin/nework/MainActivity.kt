@@ -1,16 +1,11 @@
 package kg.zukhridin.nework
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageView
-import android.widget.SearchView
-import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI.setupWithNavController
@@ -18,6 +13,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kg.zukhridin.nework.custom.Glide
 import kg.zukhridin.nework.database.AppAuth
 import kg.zukhridin.nework.databinding.ActivityMainBinding
+import kg.zukhridin.nework.utils.CheckNetwork
+import kg.zukhridin.nework.utils.Permissions
 import kg.zukhridin.nework.viewmodel.UserViewModel
 import javax.inject.Inject
 
@@ -28,25 +25,50 @@ class MainActivity : AppCompatActivity() {
     private val userVM: UserViewModel by viewModels()
 
     @Inject
+    lateinit var checkNetwork: CheckNetwork
+
+    @Inject
     lateinit var appAuth: AppAuth
+
+    @Inject
+    lateinit var permissions: Permissions
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        bnvControl()
+        lifecycleScope.launchWhenCreated {
+            if (checkNetwork.networkAvailable()) {
+                binding.bnv.visibility = View.VISIBLE
+                bnvControl()
+                permissions.folderPermission(this@MainActivity)
+                setVisibility()
+            } else {
+                binding.bnv.visibility = View.GONE
+            }
+        }
+
     }
 
-    private fun bnvControl() {
+    private fun setVisibility() {
+        binding.bodyContainer.visibility = View.VISIBLE
+        binding.progress.visibility = View.GONE
+    }
+
+    private suspend fun bnvControl() {
         binding.bnv.itemIconTintList = null
         val navHostFragment =
             binding.navHostFragmentContainer.getFragment<Fragment>() as NavHostFragment
         navController = navHostFragment.navController
         setupWithNavController(binding.bnv, navController)
-        Glide.startWithBitmapCircleCrop(
-            this,
-            appAuth.authStateFlow.value?.avatar.toString(),
-            binding.bnv.menu.findItem(R.id.profileFragment),
-            resources
-        )
+        val user = userVM.getUser(appAuth.authStateFlow.value?.id.toString().toInt())
+        if (user != null){
+            Glide.startWithBitmapCircleCrop(
+                this,
+                user.avatar ?: "https://zolya.ru/wp-content/uploads/9/8/7/9877e898924c3914b792bfbd83eaa65c.jpeg",
+                binding.bnv.menu.findItem(R.id.profileFragment),
+                resources
+            )
+        }
+
     }
 }

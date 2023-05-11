@@ -14,8 +14,10 @@ import android.view.ViewGroup
 import android.webkit.URLUtil
 import android.widget.ImageView
 import androidx.fragment.app.FragmentActivity
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.RecyclerView
+import kg.zukhridin.nework.adapter.viewholders.*
 import kg.zukhridin.nework.callback.PostDiffCallBack
 import kg.zukhridin.nework.custom.CustomMediaPlayer
 import kg.zukhridin.nework.custom.Glide
@@ -34,7 +36,9 @@ import kg.zukhridin.nework.utils.WITHOUT_ATTACHMENT
 @SuppressLint("SetTextI18n")
 class PostAdapter(
     private val listener: PostOnItemEventsListener,
-    private val activity: FragmentActivity
+    private val activity: FragmentActivity,
+    private val player: ExoPlayer,
+    private val videoListener: VideoListener
 ) :
     PagingDataAdapter<Post, RecyclerView.ViewHolder>(PostDiffCallBack()) {
     override fun getItemViewType(position: Int): Int {
@@ -75,7 +79,6 @@ class PostAdapter(
                 )
             }
         }
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -96,9 +99,7 @@ class PostAdapter(
                         parent,
                         false
                     )
-                val videoPlayer =
-                    CustomMediaPlayer(parent.context, binding.contentVideo, AttachmentType.VIDEO)
-                PostViewHolderWithVideo(binding, listener, activity, videoPlayer)
+                PostViewHolderWithVideo(binding, listener, activity, player, videoListener)
             }
             AUDIO -> {
                 val binding = PostItemWithAudioBinding.inflate(
@@ -106,9 +107,7 @@ class PostAdapter(
                     parent,
                     false
                 )
-                val audioPlayer =
-                    CustomMediaPlayer(parent.context, binding.contentAudio, AttachmentType.AUDIO)
-                PostViewHolderWithAudio(binding, listener, activity, audioPlayer)
+                PostViewHolderWithAudio(binding, listener, activity, videoListener)
             }
             WITHOUT_ATTACHMENT -> {
                 val binding =
@@ -127,8 +126,12 @@ class PostAdapter(
     }
 }
 
-fun downloadImage(image: ImageView, avatar: String) {
-    Glide.start(image, avatar)
+fun downloadImage(image: ImageView, url: String) {
+    Glide.start(image, url)
+}
+
+fun downloadAvatar(image: ImageView, url: String) {
+    com.bumptech.glide.Glide.with(image).load(url).fitCenter().circleCrop().into(image)
 }
 
 fun postContent(
@@ -156,4 +159,10 @@ fun postContent(
 
 interface PostOnItemEventsListener {
     fun onLike(post: Post)
+    fun onMenuClick(post: Post, view: View)
+
+    fun onMentionPeopleClick(post: Post)
+    fun userDetail(userId: Int)
+
+    fun postItemClick(post: Post)
 }

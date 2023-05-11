@@ -1,14 +1,19 @@
 package kg.zukhridin.nework.viewmodel
 
 import android.net.Uri
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kg.zukhridin.nework.dto.User
 import kg.zukhridin.nework.exceptions.ApiResult
+import kg.zukhridin.nework.model.ErrorResponseModel
 import kg.zukhridin.nework.model.PhotoModel
 import kg.zukhridin.nework.repository.UserRepository
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
@@ -21,23 +26,36 @@ class UserViewModel @Inject constructor(
         get() = _photo
 
     private val _users = MutableLiveData<List<User>?>()
-    val user: LiveData<List<User>?> = _users
-    val userAuthResponseCode = repository.userAuthResponseCode
-    val userResponseCode = repository.userResponseCode
+    val users: LiveData<List<User>?> = _users
 
     init {
         getUsers()
     }
 
-    fun userSignIn(login: String, password: String, name: String) = viewModelScope.launch {
-        photo.value?.let { photoModel ->
-            repository.userSignIn(login, password, name, photoModel)
-            savePhoto(null, null)
+    suspend fun userRegistration(
+        login: String,
+        password: String,
+        name: String
+    ): Pair<Boolean, ErrorResponseModel?> =
+        withContext(viewModelScope.coroutineContext) {
+            if (photo.value != null) {
+                println("registrationWithPhoto")
+                repository.registrationWithPhoto(login, password, name, photo.value!!)
+            } else {
+                println("registrationWithOutPhoto")
+                repository.registrationWithOutPhoto(login, password, name)
+            }
         }
+
+    suspend fun userAuthentication(
+        login: String,
+        password: String
+    ): Pair<Boolean, ErrorResponseModel?> = withContext(viewModelScope.coroutineContext) {
+        repository.userAuthentication(login, password)
     }
 
-    fun userLogIn(login: String, password: String) = viewModelScope.launch {
-        repository.userLogIn(login, password)
+    suspend fun getUser(userId: Int): User? {
+        return repository.getUserById(userId)
     }
 
     private fun getUsers() = viewModelScope.launch {

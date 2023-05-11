@@ -20,7 +20,10 @@ class CustomMediaPlayer(
     init {
         exoPlayer.repeatMode = ExoPlayer.REPEAT_MODE_ALL
     }
-    fun stop(){
+
+    fun isReady(): Boolean = exoPlayer.playWhenReady
+
+    fun stop() {
         exoPlayer.stop()
     }
 
@@ -28,7 +31,7 @@ class CustomMediaPlayer(
         val uri = Uri.parse(url)
         playerView.player = exoPlayer
         val mediaItem = MediaItem.fromUri(uri)
-        exoPlayer.addMediaItem(mediaItem)
+        exoPlayer.setMediaItem(mediaItem)
         exoPlayer.prepare()
     }
 
@@ -56,12 +59,14 @@ class CustomMediaPlayer(
         }
     }
 
-    fun setController(use: Boolean) {
+    fun setController(use: Boolean = true) {
         playerView.useController = use
     }
 
 
     fun play() {
+        exoPlayer.playWhenReady = true
         exoPlayer.play()
+
     }
 }

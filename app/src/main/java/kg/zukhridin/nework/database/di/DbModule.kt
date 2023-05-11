@@ -9,9 +9,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kg.zukhridin.nework.database.dao.PostDao
 import kg.zukhridin.nework.database.AppDb
+import kg.zukhridin.nework.database.dao.EventDao
+import kg.zukhridin.nework.database.dao.JobDao
+import kg.zukhridin.nework.utils.DATABASE_NAME
 import javax.inject.Singleton
-
-const val DATABASE_NAME = "NeWork.db"
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -25,4 +26,10 @@ object DbModule {
 
     @Provides
     fun providePostDao(appDb: AppDb): PostDao = appDb.postDao()
+
+    @Provides
+    fun provideJobDao(appDb: AppDb): JobDao = appDb.jobDao()
+
+    @Provides
+    fun provideEventDao(appDb: AppDb): EventDao = appDb.eventDao()
 }

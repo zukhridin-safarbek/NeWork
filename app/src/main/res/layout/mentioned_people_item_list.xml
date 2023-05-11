@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/mentionPeopleBtn"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:elevation="0dp"
+    android:focusable="true"
+    android:text="@string/mention_people"
+    android:textAlignment="textStart"
+    android:textAllCaps="false"
+    android:textColor="@color/black"
+    app:backgroundTint="#F3F3F3"
+    app:cornerRadius="8dp"
+    app:rippleColor="#20000000" />

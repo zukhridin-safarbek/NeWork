@@ -2,11 +2,15 @@ package kg.zukhridin.nework.database.dao
 
 import androidx.paging.PagingSource
 import androidx.room.*
+import kg.zukhridin.nework.dto.Post
 import kg.zukhridin.nework.entity.PostEntity
 import kotlinx.coroutines.flow.Flow
+import retrofit2.Response
 
 @Dao
 interface PostDao {
+    @Query("SELECT * FROM postentity WHERE id = :postId")
+    suspend fun getPostById(postId: Int): PostEntity
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPost(postEntity: PostEntity)
@@ -22,6 +26,12 @@ interface PostDao {
 
     @Query("DELETE FROM PostEntity")
     suspend fun clear()
+
+    @Query("DELETE FROM PostEntity WHERE id = :id")
+    suspend fun deleteById(id: Int)
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updatePostById(postEntity: PostEntity)
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun likedById(postEntity: PostEntity)

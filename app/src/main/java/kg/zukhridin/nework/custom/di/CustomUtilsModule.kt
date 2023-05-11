@@ -1,6 +1,7 @@
 package kg.zukhridin.nework.custom.di
 
 import android.content.Context
+import androidx.appcompat.app.AppCompatActivity
 import androidx.media3.exoplayer.ExoPlayer
 import dagger.Module
 import dagger.Provides

@@ -1,14 +1,14 @@
 package kg.zukhridin.nework.callback
 
 import androidx.recyclerview.widget.DiffUtil
-import kg.zukhridin.nework.dto.Image
+import kg.zukhridin.nework.dto.CustomMedia
 
-class GalleryDiffCallBack: DiffUtil.ItemCallback<Image>() {
-    override fun areItemsTheSame(oldItem: Image, newItem: Image): Boolean {
+class GalleryDiffCallBack: DiffUtil.ItemCallback<CustomMedia>() {
+    override fun areItemsTheSame(oldItem: CustomMedia, newItem: CustomMedia): Boolean {
         return oldItem.url == newItem.url
     }
 
-    override fun areContentsTheSame(oldItem: Image, newItem: Image): Boolean {
+    override fun areContentsTheSame(oldItem: CustomMedia, newItem: CustomMedia): Boolean {
         return oldItem == newItem
     }
 }

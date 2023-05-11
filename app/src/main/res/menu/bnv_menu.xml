@@ -6,7 +6,7 @@
         android:icon="@drawable/home_icon"
         android:title="@string/home" />
     <item
-        android:id="@+id/newPostFragment"
+        android:id="@+id/newPostGalleryFragment"
         android:icon="@drawable/post_icon"
         android:title="@string/post" />
 
@@ -15,10 +15,6 @@
         android:icon="@drawable/notification_icon"
         android:title="@string/notification" />
 
-    <item
-        android:id="@+id/jobFragment"
-        android:icon="@drawable/job_icon"
-        android:title="@string/job" />
     <item
         android:id="@+id/profileFragment"
         android:icon="@drawable/profile_icon"
