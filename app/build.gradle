@@ -3,7 +3,6 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.kapt'
     id 'com.google.dagger.hilt.android'
-    id 'kotlin-parcelize'
 }
 
 android {
@@ -45,7 +44,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    buildFeatures{
+    buildFeatures {
         viewBinding true
     }
     kotlinOptions {
@@ -54,49 +53,57 @@ android {
 }
 
 dependencies {
+    // ui
     implementation 'androidx.core:core-ktx:1.10.0'
-    def coroutines_version = "1.6.4"
-    def hilt_version = "2.44.2"
-    def paging_version = "3.1.1"
-    def retrofit_version = "2.9.0"
-    def lifecycle_version = "2.5.1"
-    def mediaVersion = "1.0.0-rc02"
-    def map_version = "3.2.0"
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.2")
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    // modules
+    implementation project(path: ':domain')
+    implementation project(path: ':data')
+    // desugar
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+    // google services
     implementation 'com.google.android.gms:play-services-location:21.0.1'
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
-    implementation "com.google.maps.android:maps-ktx:$map_version"
-    implementation "com.google.maps.android:maps-utils-ktx:$map_version"
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    // google map
+    implementation "com.google.maps.android:maps-ktx:$google_map_version"
+    implementation "com.google.maps.android:maps-utils-ktx:$google_map_version"
+    // material
     implementation 'com.google.android.material:material:1.8.0'
+    // activity
     implementation 'androidx.activity:activity-ktx:1.6.1'
+    // fragment
     implementation 'androidx.fragment:fragment-ktx:1.5.5'
+    // lifecycle
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    // image picker
     implementation 'com.github.dhaval2404:imagepicker:2.1'
+    // paging 3
     implementation("androidx.paging:paging-runtime-ktx:$paging_version")
-    implementation "androidx.room:room-paging:2.5.0"
     implementation "androidx.paging:paging-rxjava2-ktx:$paging_version"
+    // recycler view
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$coroutines_version")
+    // retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.2.2'
+    // dagger hilt
     implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt("com.google.dagger:hilt-compiler:$hilt_version")
+    // swipe refresh layout
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
-    implementation 'androidx.room:room-ktx:2.5.0'
-    implementation 'androidx.room:room-runtime:2.5.0'
-    implementation "androidx.media3:media3-exoplayer:$mediaVersion"
-    implementation "androidx.media3:media3-ui:$mediaVersion"
-    implementation "androidx.media3:media3-exoplayer-dash:$mediaVersion"
+    // navigation components
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
-    kapt("com.google.dagger:hilt-compiler:$hilt_version")
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.2.2'
+    // glide
     implementation('com.github.bumptech.glide:glide:4.14.2')
-    implementation "androidx.media3:media3-exoplayer:1.0.0"
-    kapt 'androidx.room:room-compiler:2.5.0'
+    // exoPlayer
+    implementation "androidx.media3:media3-exoplayer:$media_version"
+    implementation "androidx.media3:media3-ui:$media_version"
+    implementation "androidx.media3:media3-exoplayer-dash:$media_version"
+    // constraint layout
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    // junit test
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
