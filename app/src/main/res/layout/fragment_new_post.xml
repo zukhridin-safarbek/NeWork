@@ -26,7 +26,8 @@
             android:paddingHorizontal="12dp"
             app:icon="@drawable/baseline_close"
             app:iconTint="@color/black"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:rippleColor="#E8E8E8" />
 
         <TextView
             android:id="@+id/fragmentName"
@@ -39,6 +40,20 @@
             android:textColor="@color/black"
             android:textSize="18sp"
             app:layout_constraintStart_toEndOf="@id/close" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/checkPostOrEvent"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:checkable="true"
+            android:text="@string/app_name"
+            android:textAllCaps="true"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            app:toggleCheckedStateOnClick="true"
+            app:layout_constraintEnd_toStartOf="@id/add"
+            app:rippleColor="#E8E8E8" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/add"
@@ -56,7 +71,7 @@
             app:icon="@drawable/baseline_check"
             app:iconTint="@color/black"
             app:layout_constraintEnd_toEndOf="parent"
-            app:rippleColor="#2C000000" />
+            app:rippleColor="#E8E8E8" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -167,7 +182,8 @@
             app:iconSize="18dp"
             app:iconTint="@color/black"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:rippleColor="#E8E8E8" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <FrameLayout

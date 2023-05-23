@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/logInFragment"
-        android:name="kg.zukhridin.nework.fragments.UserAuthenticationFragment"
+        android:name="kg.zukhridin.nework.presentation.fragments.UserAuthenticationFragment"
         android:label="fragment_authentication"
         tools:layout="@layout/fragment_user_authentication" >
         <action
@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/signInFragment"
-        android:name="kg.zukhridin.nework.fragments.UserRegistrationFragment"
+        android:name="kg.zukhridin.nework.presentation.fragments.UserRegistrationFragment"
         android:label="fragment_registration"
         tools:layout="@layout/fragment_user_registration" >
         <action
