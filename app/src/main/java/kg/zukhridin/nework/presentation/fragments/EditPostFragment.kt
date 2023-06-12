@@ -21,8 +21,8 @@ import kg.zukhridin.nework.R
 import kg.zukhridin.nework.data.util.AppPrefs
 import kg.zukhridin.nework.databinding.FragmentEditPostBinding
 import kg.zukhridin.nework.domain.models.Post
-import kg.zukhridin.nework.presentation.adapter.MentionPeopleAdapter
-import kg.zukhridin.nework.presentation.adapter.MentionPeopleItemListener
+import kg.zukhridin.nework.presentation.adapters.MentionPeopleAdapter
+import kg.zukhridin.nework.presentation.adapters.MentionPeopleItemListener
 import kg.zukhridin.nework.presentation.utils.hideKeyboard
 import kg.zukhridin.nework.presentation.viewmodel.PostViewModel
 import kg.zukhridin.nework.presentation.viewmodel.UserViewModel

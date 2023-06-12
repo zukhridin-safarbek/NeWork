@@ -1,36 +1,47 @@
 package kg.zukhridin.nework.presentation.fragments
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Color
+import android.location.Location
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.MimeTypeMap
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.AndroidEntryPoint
 import kg.zukhridin.nework.R
 import kg.zukhridin.nework.data.storage.database.AppAuth
+import kg.zukhridin.nework.data.util.Constants.MY_LOG
 import kg.zukhridin.nework.databinding.FragmentNewPostBinding
-import kg.zukhridin.nework.domain.enums.AttachmentType
 import kg.zukhridin.nework.domain.enums.StatusType
 import kg.zukhridin.nework.domain.models.*
-import kg.zukhridin.nework.presentation.adapter.MentionPeopleAdapter
-import kg.zukhridin.nework.presentation.adapter.MentionPeopleItemListener
+import kg.zukhridin.nework.presentation.adapters.MentionPeopleAdapter
+import kg.zukhridin.nework.presentation.adapters.MentionPeopleItemListener
 import kg.zukhridin.nework.presentation.fragments.NewPostGalleryFragment.Companion.file
+import kg.zukhridin.nework.presentation.utils.CustomOffsetDateTime
+import kg.zukhridin.nework.presentation.utils.Permissions
 import kg.zukhridin.nework.presentation.utils.hideKeyboard
 import kg.zukhridin.nework.presentation.viewmodel.EventViewModel
 import kg.zukhridin.nework.presentation.viewmodel.PostViewModel
 import kg.zukhridin.nework.presentation.viewmodel.UserViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.File
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import javax.inject.Inject
 
 
@@ -43,15 +54,26 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
     private val userVM: UserViewModel by viewModels()
     private val eventVM: EventViewModel by viewModels()
     private val mentionedIds = mutableListOf<Int>()
+    private var currentLocation: Location? = null
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     @Inject
     lateinit var appAuth: AppAuth
+
+    @Inject
+    lateinit var permissions: Permissions
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
         binding = FragmentNewPostBinding.inflate(inflater, container, false)
+        fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(requireActivity())
+        if (isLocationPermissionGranted()) {
+            getCurrentLocationUser()
+        }
         return binding.root
     }
 
@@ -62,6 +84,7 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
             getImages(user?.avatar)
             addPost(user)
             closeBtn()
+            addLocationBtn()
             tagPeople()
             checkPostOrEvent()
         }
@@ -69,6 +92,35 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
             checkPostOrEvent()
         }
 
+    }
+
+    private fun isLocationPermissionGranted(): Boolean {
+        return if (!permissions.isLocationPermissionGranted(requireContext())) {
+            Log.d(MY_LOG, "if")
+            permissions.setLocationPermission(this)
+        } else {
+            Log.d(MY_LOG, "else")
+            true
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getCurrentLocationUser() {
+        try {
+            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    currentLocation = location
+                }
+            }
+        } catch (e: Exception) {
+            currentLocation = null
+        }
+    }
+
+    private fun addLocationBtn() {
+        binding.addLocation.setOnClickListener {
+            binding.locationCheckBox.isChecked = !binding.locationCheckBox.isChecked
+        }
     }
 
     private fun checkPostOrEvent() {
@@ -141,6 +193,8 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
         }
         val mimeType: List<String>? = type?.split(Regex("/"))
         add.setOnClickListener {
+            binding.add.visibility = View.GONE
+            binding.addProgress.visibility = View.VISIBLE
             val post = Post(
                 0,
                 appAuth.authStateFlow.value?.id ?: 0,
@@ -148,14 +202,20 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
                 user?.avatar,
                 null,
                 binding.content.text.toString(),
-                "2023-03-19T19:03:647241Z",
-                null,
+                published = CustomOffsetDateTime.timeCode(),
+                coords = if (currentLocation != null) if (binding.locationCheckBox.isChecked) Coordinates(
+                    "${(currentLocation!!.latitude).toFloat()}",
+                    "${(currentLocation!!.longitude).toFloat()}"
+                ) else null
+                else null,
                 null,
                 attachment = if (file == null) null else Attachment(
                     file,
                     if ((mimeType?.get(0)
                             ?: 0) == "image"
-                    ) kg.zukhridin.nework.domain.enums.AttachmentType.IMAGE else if ((mimeType?.get(0)
+                    ) kg.zukhridin.nework.domain.enums.AttachmentType.IMAGE else if ((mimeType?.get(
+                            0
+                        )
                             ?: 0) == "video"
                     ) kg.zukhridin.nework.domain.enums.AttachmentType.VIDEO else kg.zukhridin.nework.domain.enums.AttachmentType.AUDIO
                 ),
@@ -166,31 +226,41 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
             )
             val event = Event(
                 id = 0,
+                authorId = appAuth.authStateFlow.value?.id ?: 0,
+                author = user?.name ?: "name",
+                authorAvatar = user?.avatar,
                 content = binding.content.text.toString(),
-                datetime = "2023-05-19T17:55:16.816Z",
+                coords = if (currentLocation != null) if (binding.locationCheckBox.isChecked) Coordinates(
+                    "${(currentLocation!!.latitude).toFloat()}",
+                    "${(currentLocation!!.longitude).toFloat()}"
+                ) else null
+                else null,
+                datetime = CustomOffsetDateTime.timeCode(),
                 attachment = if (file == null) null else Attachment(
                     file,
                     if ((mimeType?.get(0)
                             ?: 0) == "image"
-                    ) kg.zukhridin.nework.domain.enums.AttachmentType.IMAGE else if ((mimeType?.get(0)
+                    ) kg.zukhridin.nework.domain.enums.AttachmentType.IMAGE else if ((mimeType?.get(
+                            0
+                        )
                             ?: 0) == "video"
                     ) kg.zukhridin.nework.domain.enums.AttachmentType.VIDEO else kg.zukhridin.nework.domain.enums.AttachmentType.AUDIO
                 ),
-               type = StatusType.ONLINE, participatedByMe = false
+                type = StatusType.ONLINE, participatedByMe = false
             )
             lifecycleScope.launchWhenCreated {
                 val res =
-                    if (!binding.checkPostOrEvent.isChecked) insertPostToServer(post) else insertEventToServer(
+                    if (!binding.checkPostOrEvent.isChecked) insertPost(post) else insertEvent(
                         event
                     )
-                if (res) {
+                if (res.first) {
                     findNavController().navigate(R.id.action_newPostWithMediaFragment_to_homeFragment)
                 } else {
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.something_went_wrong),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    binding.add.visibility = View.VISIBLE
+                    binding.addProgress.visibility = View.GONE
+                    res.second?.content?.map {
+                        binding.content.error = it
+                    }
                 }
             }
 
@@ -198,13 +268,13 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
 
     }
 
-    private suspend fun insertEventToServer(event: Event): Boolean {
-        return eventVM.insertEvent(event).first
+    private suspend fun insertEvent(event: Event): Pair<Boolean, ErrorResponseModel?> {
+        return eventVM.insertEvent(event)
     }
 
     private fun closeBtn() {
         binding.close.setOnClickListener {
-            findNavController().navigate(R.id.action_newPostWithMediaFragment_to_newPostGalleryFragment)
+            findNavController().popBackStack()
         }
     }
 
@@ -226,10 +296,12 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
         }
     }
 
-    private suspend fun insertPostToServer(post: Post): Boolean {
-        return postVM.insertPost(
+    private suspend fun insertPost(post: Post): Pair<Boolean, ErrorResponseModel> {
+        val response = postVM.insertPost(
             post
         )
+        Log.d(MY_LOG, "${response.second}")
+        return response
     }
 
 

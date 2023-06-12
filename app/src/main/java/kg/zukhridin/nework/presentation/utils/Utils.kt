@@ -12,10 +12,12 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.location.Geocoder
 import android.net.Uri
+import android.os.Build
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.ClickableSpan
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -30,7 +32,9 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import kg.zukhridin.nework.R
+import kg.zukhridin.nework.data.util.Constants.MY_LOG
 import kg.zukhridin.nework.presentation.activities.MainActivity
+import java.util.Locale
 
 fun showShortToast(context: Context, text: String) {
     Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
@@ -69,12 +73,13 @@ fun getCoordinationCountryNameLocalityThoroughfare(
     lng: Double
 ): Map<String, String> {
     return try {
-        val geo = Geocoder(context)
+        val geo = Geocoder(context, Locale.getDefault())
         val address = geo.getFromLocation(lat, lng, 1)
         return mapOf(
             "country" to "${address?.get(0)?.countryName}",
             "region" to "${address?.get(0)?.locality}",
-            "thoroughfare" to "${address?.get(0)?.thoroughfare}"
+            "thoroughfare" to "${address?.get(0)?.thoroughfare}",
+            "feature" to "${address?.get(0)?.featureName}"
         )
     } catch (e: Exception) {
         emptyMap()

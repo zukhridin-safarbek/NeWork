@@ -29,7 +29,9 @@ class PostRepositoryImplStorage @Inject constructor(
     }
 
     override suspend fun getPostById(postId: Int): Post {
-        return postDao.getPostById(postId).toDto()
+        println("postId: $postId")
+        val postEntity =  postDao.getPostById(postId)
+        return postEntity.toDto()
     }
 
     override suspend fun insertPost(post: Post) {

@@ -36,10 +36,10 @@ import javax.inject.Inject
 @AndroidEntryPoint
 @OptIn(ExperimentalCoroutinesApi::class)
 class NewPostGalleryFragment : Fragment(),
-    kg.zukhridin.nework.presentation.adapter.OnImageItemClickListener, Player.Listener {
+    kg.zukhridin.nework.presentation.adapters.OnImageItemClickListener, Player.Listener {
     private lateinit var binding: FragmentNewPostGalleryBinding
     private val postVM: PostViewModel by viewModels()
-    private lateinit var mediaAdapter: kg.zukhridin.nework.presentation.adapter.GalleryAdapter
+    private lateinit var mediaAdapter: kg.zukhridin.nework.presentation.adapters.GalleryAdapter
     private lateinit var medias: ArrayList<MediaModel>
     private lateinit var file: File
     private lateinit var fileToNext: File
@@ -90,6 +90,7 @@ class NewPostGalleryFragment : Fragment(),
             }
             timer.schedule(timerTask, 0, 1000)
         }
+        binding.createPostWithoutMedia
         setFolderPermissionButton()
     }
 
@@ -172,7 +173,7 @@ class NewPostGalleryFragment : Fragment(),
 
     private fun closeBtn() {
         binding.close.setOnClickListener {
-            findNavController().navigate(R.id.action_newPostGalleryFragment_to_homeFragment)
+            findNavController().popBackStack()
         }
     }
 
@@ -223,7 +224,7 @@ class NewPostGalleryFragment : Fragment(),
             }
             mediaAdapter = medias.let {
                 it.reverse()
-                kg.zukhridin.nework.presentation.adapter.GalleryAdapter(it, this)
+                kg.zukhridin.nework.presentation.adapters.GalleryAdapter(it, this)
             }
             binding.rcViewVideo.apply {
                 setHasFixedSize(true)
@@ -269,7 +270,7 @@ class NewPostGalleryFragment : Fragment(),
             }
             mediaAdapter = medias.let {
                 it.reverse()
-                kg.zukhridin.nework.presentation.adapter.GalleryAdapter(it, this)
+                kg.zukhridin.nework.presentation.adapters.GalleryAdapter(it, this)
             }
             binding.rcViewImage.apply {
                 setHasFixedSize(true)
@@ -319,7 +320,7 @@ class NewPostGalleryFragment : Fragment(),
             }
             mediaAdapter = medias.let {
                 it.reverse()
-                kg.zukhridin.nework.presentation.adapter.GalleryAdapter(it, this)
+                kg.zukhridin.nework.presentation.adapters.GalleryAdapter(it, this)
             }
             binding.rcViewImage.apply {
                 setHasFixedSize(true)

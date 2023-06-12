@@ -1,5 +1,6 @@
 package kg.zukhridin.nework.presentation.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -7,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.map
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kg.zukhridin.nework.R
@@ -14,11 +16,12 @@ import kg.zukhridin.nework.data.storage.database.AppAuth
 import kg.zukhridin.nework.databinding.FragmentPostUserDetailPagerBinding
 import kg.zukhridin.nework.domain.models.Post
 import kg.zukhridin.nework.data.util.AppPrefs
-import kg.zukhridin.nework.domain.enums.AttachmentType
-import kg.zukhridin.nework.presentation.adapter.UserWallAdapter
-import kg.zukhridin.nework.presentation.adapter.viewholders.PostItemClickListener
+import kg.zukhridin.nework.presentation.adapters.UserWallAdapter
+import kg.zukhridin.nework.presentation.adapters.viewholders.PostItemClickListener
 import kg.zukhridin.nework.presentation.viewmodel.PostViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -41,10 +44,12 @@ class PostUserDetailPagerFragment : Fragment(), PostItemClickListener {
         return binding.root
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         lifecycleScope.launchWhenCreated {
-            val userId = appPrefs.postItemClickStateFlow.value?.userId ?: appAuth.authStateFlow.value?.id
+            val userId =
+                appPrefs.postItemClickStateFlow.value?.userId ?: appAuth.authStateFlow.value?.id
             (if (userId == 0) appAuth.authStateFlow.value?.id ?: 0 else userId).let {
                 if (it != null) {
                     wallControl(
@@ -52,18 +57,18 @@ class PostUserDetailPagerFragment : Fragment(), PostItemClickListener {
                     )
                 }
             }
+            binding.rcView.adapter?.notifyDataSetChanged()
         }
     }
 
 
     private suspend fun wallControl(userId: Int) {
-        val map = postVM.getWall(userId)
-        val posts = map[userId]
         val wallAdapter = UserWallAdapter(this)
         binding.rcView.apply {
+            postVM.getWallByUserId(userId).observe(viewLifecycleOwner){posts->
+                wallAdapter.submitList(posts)
+            }
             adapter = wallAdapter
-            posts?.let {
-                wallAdapter.submitList(it) }
         }
     }
 
@@ -77,6 +82,7 @@ class PostUserDetailPagerFragment : Fragment(), PostItemClickListener {
                     findNavController().navigate(R.id.action_profileFragment_to_postDetailWithImage)
                 }
             }
+
             kg.zukhridin.nework.domain.enums.AttachmentType.VIDEO -> {
                 try {
                     findNavController().apply {
@@ -86,6 +92,7 @@ class PostUserDetailPagerFragment : Fragment(), PostItemClickListener {
                     findNavController().navigate(R.id.action_userDetailFragment_to_postDetailFragmentWithVideo)
                 }
             }
+
             kg.zukhridin.nework.domain.enums.AttachmentType.AUDIO -> {
                 try {
                     findNavController().navigate(R.id.action_profileFragment_to_postDetailFragmentWithAudio)
@@ -93,6 +100,7 @@ class PostUserDetailPagerFragment : Fragment(), PostItemClickListener {
                     findNavController().navigate(R.id.action_userDetailFragment_to_postDetailFragmentWithAudio)
                 }
             }
+
             else -> {
                 try {
                     findNavController().navigate(R.id.action_profileFragment_to_postDetailFragmentWithoutAttachment)

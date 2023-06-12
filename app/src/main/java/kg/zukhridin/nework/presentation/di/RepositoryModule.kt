@@ -8,13 +8,16 @@ import kg.zukhridin.nework.data.service.repository.*
 import kg.zukhridin.nework.data.storage.repository.EventRepositoryImplStorage
 import kg.zukhridin.nework.data.storage.repository.JobRepositoryImplStorage
 import kg.zukhridin.nework.data.storage.repository.PostRepositoryImplStorage
+import kg.zukhridin.nework.data.storage.repository.WallRepositoryImplStorage
 import kg.zukhridin.nework.domain.service.repositories.EventRepositoryService
 import kg.zukhridin.nework.domain.service.repositories.JobRepositoryService
 import kg.zukhridin.nework.domain.service.repositories.PostRepositoryService
 import kg.zukhridin.nework.domain.service.repositories.UserRepositoryService
+import kg.zukhridin.nework.domain.service.repositories.WallRepositoryService
 import kg.zukhridin.nework.domain.storage.repositories.EventRepositoryStorage
 import kg.zukhridin.nework.domain.storage.repositories.JobRepositoryStorage
 import kg.zukhridin.nework.domain.storage.repositories.PostRepositoryStorage
+import kg.zukhridin.nework.domain.storage.repositories.WallRepositoryStorage
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -48,4 +51,12 @@ interface RepositoryModule {
     @Binds
     @Singleton
     fun bindEventRepositoryService(impl: EventRepositoryImplService): EventRepositoryService
+
+    @Binds
+    @Singleton
+    fun bindWallRepositoryStorage(impl: WallRepositoryImplStorage): WallRepositoryStorage
+
+    @Binds
+    @Singleton
+    fun bindWallRepositoryService(impl: WallRepositoryImplService): WallRepositoryService
 }

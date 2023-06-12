@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -16,13 +15,12 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import kg.zukhridin.nework.R
-import kg.zukhridin.nework.presentation.adapter.PagerAdapter
+import kg.zukhridin.nework.presentation.adapters.PagerAdapter
 import kg.zukhridin.nework.data.storage.database.AppAuth
 import kg.zukhridin.nework.databinding.FragmentUserProfileBinding
 import kg.zukhridin.nework.data.util.AppPrefs
 import kg.zukhridin.nework.data.util.Constants.USER
 import kg.zukhridin.nework.data.util.Constants.USER_DETAIL_FRAGMENT
-import kg.zukhridin.nework.domain.enums.AttachmentType
 import kg.zukhridin.nework.domain.models.Post
 import kg.zukhridin.nework.domain.models.User
 import kg.zukhridin.nework.presentation.utils.changeHeaderBackground
@@ -30,6 +28,7 @@ import kg.zukhridin.nework.presentation.utils.showShortToast
 import kg.zukhridin.nework.presentation.viewmodel.PostViewModel
 import kg.zukhridin.nework.presentation.viewmodel.UserViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -42,11 +41,13 @@ class UserDetailFragment : Fragment() {
     private val userPostsWithVideo = mutableListOf<Post>()
     private val userPostsWithAudio = mutableListOf<Post>()
     private val userPostsWithWithoutAttachment = mutableListOf<Post>()
+    private val userPosts = mutableListOf<Post>()
     private val userVM: UserViewModel by viewModels()
     private lateinit var ref: SharedPreferences
 
     @Inject
     lateinit var appAuth: AppAuth
+
     @Inject
     lateinit var appPrefs: AppPrefs
     override fun onCreateView(
@@ -103,9 +104,11 @@ class UserDetailFragment : Fragment() {
                 0 -> {
                     getString(R.string.post)
                 }
+
                 1 -> {
                     getString(R.string.job)
                 }
+
                 else -> {
                     throw Exception("Zukh error")
                 }
@@ -143,8 +146,6 @@ class UserDetailFragment : Fragment() {
                 ?: "https://zolya.ru/wp-content/uploads/9/8/7/9877e898924c3914b792bfbd83eaa65c.jpeg",
             binding.header
         )
-        val map = user?.id?.let { postVM.getWall(it) }
-        val posts = map?.get(user.id)
         if (user != null) {
             binding.userLoginDetail.text = user.login
         }
@@ -152,21 +153,34 @@ class UserDetailFragment : Fragment() {
             user?.avatar
                 ?: "https://zolya.ru/wp-content/uploads/9/8/7/9877e898924c3914b792bfbd83eaa65c.jpeg"
         )
-        posts?.map { post ->
-            when (post.attachment?.type) {
-                kg.zukhridin.nework.domain.enums.AttachmentType.IMAGE -> {
-                    userPostsWithImage.add(post)
-                }
-                kg.zukhridin.nework.domain.enums.AttachmentType.VIDEO -> userPostsWithVideo.add(post)
-                kg.zukhridin.nework.domain.enums.AttachmentType.AUDIO -> userPostsWithAudio.add(post)
-                else -> {
-                    userPostsWithWithoutAttachment.add(post)
+        postVM.getWallByUserId(userId).observe(viewLifecycleOwner) { posts ->
+            println("posts: $posts")
+            posts?.map { post ->
+                userPosts.add(post)
+                when (post.attachment?.type) {
+                    kg.zukhridin.nework.domain.enums.AttachmentType.IMAGE -> {
+                        userPostsWithImage.add(post)
+                    }
+
+                    kg.zukhridin.nework.domain.enums.AttachmentType.VIDEO -> userPostsWithVideo.add(
+                        post
+                    )
+
+                    kg.zukhridin.nework.domain.enums.AttachmentType.AUDIO -> userPostsWithAudio.add(
+                        post
+                    )
+
+                    else -> {
+                        userPostsWithWithoutAttachment.add(post)
+                    }
                 }
             }
+
         }
         with(binding) {
+            postVM.getWallByUserId(userId)
             username.text = user?.name
-            binding.posts.text = posts?.size.toString()
+            binding.posts.text = userPosts.size.toString()
             images.text = userPostsWithImage.size.toString()
             videos.text = userPostsWithVideo.size.toString()
             audios.text = userPostsWithAudio.size.toString()

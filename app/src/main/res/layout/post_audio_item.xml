@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/postAudioItem"
+    android:layout_marginVertical="8dp"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!--Audio item-->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/audioBody"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginVertical="4dp"
+        app:cardCornerRadius="12dp">
+
+        <ImageView
+            tools:ignore="ContentDescription"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="start"
+            android:layout_margin="6dp"
+            android:elevation="12dp"
+            android:src="@drawable/headphone_audio_icon"
+            app:tint="@color/white" />
+
+        <ImageView
+            tools:ignore="ContentDescription"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:elevation="1dp"
+            android:foreground="#AD000000"
+            android:scaleType="centerCrop"
+            android:src="@drawable/music_bg" />
+
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/contentAudio"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/playAudioControl"
+            style="@style/Widget.Material3.Button.TextButton.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/audio_play"
+            android:elevation="2dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="4dp"
+            app:cornerRadius="100dp"
+            app:icon="@drawable/baseline_play_circle"
+            app:iconPadding="0dp"
+            app:iconSize="48dp"
+            app:iconTint="#FFFFFF"
+            app:layout_constraintBottom_toBottomOf="@id/contentAudio"
+            app:layout_constraintEnd_toEndOf="@id/contentAudio"
+            app:layout_constraintStart_toStartOf="@id/contentAudio"
+            app:layout_constraintTop_toTopOf="@id/contentAudio"
+            app:rippleColor="#3EFFFFFF" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/volumeController"
+            style="@style/Widget.Material3.Button.TextButton.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="4dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/volume_controller"
+            android:elevation="5dp"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
+            app:icon="@drawable/baseline_volume_up"
+            app:iconPadding="0dp"
+            app:iconTint="#FFFFFF"
+            app:layout_constraintBottom_toBottomOf="@id/contentAudio"
+            app:layout_constraintEnd_toEndOf="@id/contentAudio"
+            app:rippleColor="#3EFFFFFF" />
+
+
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>

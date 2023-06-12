@@ -64,7 +64,7 @@ class PostDetailFragmentWithImage : Fragment(), PostMenuOnClick {
         val postId = appPrefs.postItemClickStateFlow.value?.postId
         if (postId != 0 && postId != null) {
             lifecycleScope.launchWhenCreated {
-                val post = postVM.getPostById(postId)
+                val post = postVM.getWallById(postId)
                 Glide.with(binding.contentImage).load(post.attachment?.url).fitCenter()
                     .into(binding.contentImage)
                 binding.contentText.text = post.content

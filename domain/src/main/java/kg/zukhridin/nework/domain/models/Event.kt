@@ -11,7 +11,7 @@ data class Event(
     val content: String,
     val datetime: String,
     val published: String? = null,
-    val coords: kg.zukhridin.nework.domain.models.Coordinates? = null,
+    val coords: Coordinates? = null,
     val type: StatusType,
     val likeOwnerIds: List<Int> = emptyList(),
     val likedByMe: Boolean = false,

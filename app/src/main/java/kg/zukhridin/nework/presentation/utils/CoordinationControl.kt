@@ -18,7 +18,7 @@ class CoordinationControl {
             ) {
                 textView.visibility = View.VISIBLE
                 textView.text = "${
-                    if (getCoordinationCountryNameLocalityThoroughfare(
+                    if (!getCoordinationCountryNameLocalityThoroughfare(
                             textView.context,
                             post.coords!!.lat.toDouble(),
                             post.coords!!.long.toDouble()
@@ -50,7 +50,7 @@ class CoordinationControl {
                         post.coords!!.lat.toDouble(),
                         post.coords!!.long.toDouble()
                     )["thoroughfare"]) else ""
-                }"
+                } "
             } else textView.visibility = View.GONE
         }
         @SuppressLint("SetTextI18n")
@@ -95,7 +95,7 @@ class CoordinationControl {
                         event.coords!!.lat.toDouble(),
                         event.coords!!.long.toDouble()
                     )["thoroughfare"]) else ""
-                }"
+                } "
             } else textView.visibility = View.GONE
         }
     }

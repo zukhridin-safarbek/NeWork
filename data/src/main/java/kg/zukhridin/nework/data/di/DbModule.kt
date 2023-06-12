@@ -11,6 +11,7 @@ import kg.zukhridin.nework.data.storage.dao.PostDao
 import kg.zukhridin.nework.data.storage.database.AppDb
 import kg.zukhridin.nework.data.storage.dao.EventDao
 import kg.zukhridin.nework.data.storage.dao.JobDao
+import kg.zukhridin.nework.data.storage.dao.WallDao
 import kg.zukhridin.nework.data.util.Constants.DATABASE_NAME
 import javax.inject.Singleton
 
@@ -32,4 +33,8 @@ object DbModule {
 
     @Provides
     fun provideEventDao(appDb: AppDb): EventDao = appDb.eventDao()
+
+    @Provides
+    fun provideWallDao(appDb: AppDb): WallDao = appDb.wallDao()
+
 }

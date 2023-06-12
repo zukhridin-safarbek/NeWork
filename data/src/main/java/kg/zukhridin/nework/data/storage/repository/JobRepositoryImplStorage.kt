@@ -2,6 +2,7 @@ package kg.zukhridin.nework.data.storage.repository
 
 import kg.zukhridin.nework.data.entity.JobEntity
 import kg.zukhridin.nework.data.storage.dao.JobDao
+import kg.zukhridin.nework.data.storage.database.AppAuth
 import kg.zukhridin.nework.domain.models.Job
 import kg.zukhridin.nework.domain.storage.repositories.JobRepositoryStorage
 import kotlinx.coroutines.flow.Flow
@@ -10,10 +11,11 @@ import javax.inject.Inject
 
 class JobRepositoryImplStorage @Inject constructor(
     private val jobDao: JobDao,
+    private val appAuth: AppAuth
 ) : JobRepositoryStorage {
 
-    override suspend fun insertJob(job: Job): Boolean {
-        jobDao.insertJob(JobEntity.fromDto(job))
+    override suspend fun insertJob(job: Job, userId: Int): Boolean {
+        jobDao.insertJob(JobEntity.fromDto(job).copy(userId = userId))
         return true
     }
 
@@ -31,7 +33,7 @@ class JobRepositoryImplStorage @Inject constructor(
         return jobDao.clearJobs()
     }
 
-    override suspend fun insertJobs(jobs: List<Job>) {
-        jobDao.insertJobs(jobs.map { JobEntity.fromDto(it) })
+    override suspend fun insertJobs(jobs: List<Job>, userId: Int) {
+        jobDao.insertJobs(jobs.map { JobEntity.fromDto(it).copy(userId = userId) })
     }
 }

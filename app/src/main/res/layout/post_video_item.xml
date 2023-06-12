@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:id="@+id/postVideoItem"
+    android:layout_marginVertical="8dp"
+    android:layout_height="wrap_content">
+    <!--Video item-->
+    <ImageView
+        android:id="@+id/videoThumbnail"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        tools:ignore="ContentDescription"
+        tools:src="@mipmap/ic_launcher" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/playVideoControl"
+        style="@style/Widget.Material3.Button.TextButton.Icon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        android:backgroundTint="#41000000"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        android:padding="6dp"
+        android:visibility="visible"
+        app:cornerRadius="1000dp"
+        app:icon="@drawable/baseline_play_circle"
+        app:iconSize="36dp"
+        app:iconTint="#FFFFFF"
+        app:rippleColor="#3EFFFFFF" />
+
+</FrameLayout>

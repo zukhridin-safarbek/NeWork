@@ -1,12 +1,12 @@
 package kg.zukhridin.nework.data.service.repository
 
-import kg.zukhridin.nework.domain.models.PhotoModel
-import kg.zukhridin.nework.domain.models.User
 import kg.zukhridin.nework.data.service.requests.AuthAPIService
 import kg.zukhridin.nework.data.service.requests.UserAPIService
 import kg.zukhridin.nework.data.storage.database.AppAuth
 import kg.zukhridin.nework.data.util.getErrorBody
 import kg.zukhridin.nework.domain.models.ErrorResponseModel
+import kg.zukhridin.nework.domain.models.PhotoModel
+import kg.zukhridin.nework.domain.models.User
 import kg.zukhridin.nework.domain.service.repositories.UserRepositoryService
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -21,8 +21,10 @@ class UserRepositoryImplService @Inject constructor(
 ) : UserRepositoryService {
     private val users = mutableListOf<List<User>?>()
 
-    override suspend fun userAuthentication(login: String, password: String): Pair<Boolean, ErrorResponseModel?> {
-        val pair: Pair<Boolean, ErrorResponseModel?>
+    override suspend fun userAuthentication(
+        login: String,
+        password: String
+    ): Pair<Boolean, ErrorResponseModel?> {
         val response = authService.userAuthentication(login, password)
         if (response.body() != null) {
             appAuth.setAuth(
@@ -30,8 +32,11 @@ class UserRepositoryImplService @Inject constructor(
                 response.body()!!.token
             )
         }
-        pair = Pair(response.isSuccessful, getErrorBody(response.errorBody()))
-        return pair
+        return if (response.isSuccessful) {
+            Pair(response.isSuccessful, ErrorResponseModel(null))
+        } else {
+            Pair(response.isSuccessful, getErrorBody(response.errorBody()))
+        }
     }
 
 
@@ -73,7 +78,11 @@ class UserRepositoryImplService @Inject constructor(
         return pair
     }
 
-    override suspend fun registrationWithOutPhoto(login: String, password: String, name: String): Pair<Boolean, ErrorResponseModel?> {
+    override suspend fun registrationWithOutPhoto(
+        login: String,
+        password: String,
+        name: String
+    ): Pair<Boolean, ErrorResponseModel?> {
         val pair: Pair<Boolean, ErrorResponseModel?>
         val response = authService.registrationWithOutPhoto(
             login.toRequestBody("text/plain".toMediaType()),

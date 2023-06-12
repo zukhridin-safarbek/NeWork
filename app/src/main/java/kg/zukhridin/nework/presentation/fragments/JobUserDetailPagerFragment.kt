@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kg.zukhridin.nework.R
-import kg.zukhridin.nework.presentation.adapter.JobAdapter
+import kg.zukhridin.nework.presentation.adapters.JobAdapter
 import kg.zukhridin.nework.data.storage.database.AppAuth
 import kg.zukhridin.nework.databinding.FragmentJobUserDetailPagerBinding
 import kg.zukhridin.nework.domain.models.Job

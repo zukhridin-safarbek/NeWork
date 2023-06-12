@@ -5,10 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import kg.zukhridin.nework.R
-import kg.zukhridin.nework.presentation.adapter.PagerAdapter
+import kg.zukhridin.nework.data.storage.dao.EventDao
+import kg.zukhridin.nework.data.storage.dao.PostDao
+import kg.zukhridin.nework.presentation.adapters.PagerAdapter
 import kg.zukhridin.nework.databinding.FragmentHomeBinding
 import kg.zukhridin.nework.presentation.utils.CheckNetwork
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,6 +26,12 @@ class HomeFragment : Fragment() {
 
     @Inject
     lateinit var checkNetwork: CheckNetwork
+
+    @Inject
+    lateinit var postDao: PostDao
+
+    @Inject
+    lateinit var eventDao: EventDao
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -59,9 +68,11 @@ class HomeFragment : Fragment() {
                 0 -> {
                     getString(R.string.posts)
                 }
+
                 1 -> {
                     getString(R.string.events)
                 }
+
                 else -> {
                     throw Exception("Pager error")
                 }

@@ -19,8 +19,6 @@ class LaunchActivity : AppCompatActivity() {
     @Inject
     lateinit var appAuth: AppAuth
 
-    @Inject
-    lateinit var permissions: Permissions
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_launch)
@@ -38,6 +36,7 @@ class LaunchActivity : AppCompatActivity() {
                 this.finish()
             }
         }, 1000)
+
 
 
     }

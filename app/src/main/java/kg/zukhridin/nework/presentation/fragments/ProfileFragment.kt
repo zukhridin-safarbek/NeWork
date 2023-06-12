@@ -22,7 +22,6 @@ import kg.zukhridin.nework.databinding.FragmentUserProfileBinding
 import kg.zukhridin.nework.data.util.AppPrefs
 import kg.zukhridin.nework.data.util.Constants.PROFILE_FRAGMENT
 import kg.zukhridin.nework.data.util.Constants.USER
-import kg.zukhridin.nework.domain.enums.AttachmentType
 import kg.zukhridin.nework.domain.models.Post
 import kg.zukhridin.nework.domain.models.User
 import kg.zukhridin.nework.presentation.utils.changeHeaderBackground
@@ -44,6 +43,7 @@ class ProfileFragment : Fragment() {
 
     @Inject
     lateinit var appAuth: AppAuth
+
     @Inject
     lateinit var appPrefs: AppPrefs
     private val postVM: PostViewModel by viewModels()
@@ -87,7 +87,7 @@ class ProfileFragment : Fragment() {
         fragments.add(PostUserDetailPagerFragment())
         fragments.add(JobUserDetailPagerFragment())
         viewPager.adapter =
-            kg.zukhridin.nework.presentation.adapter.PagerAdapter(
+            kg.zukhridin.nework.presentation.adapters.PagerAdapter(
                 requireActivity().supportFragmentManager,
                 lifecycle,
                 fragments
@@ -97,9 +97,11 @@ class ProfileFragment : Fragment() {
                 0 -> {
                     getString(R.string.post)
                 }
+
                 1 -> {
                     getString(R.string.job)
                 }
+
                 else -> {
                     throw Exception("Zukh error")
                 }
@@ -125,8 +127,6 @@ class ProfileFragment : Fragment() {
                 ?: "https://zolya.ru/wp-content/uploads/9/8/7/9877e898924c3914b792bfbd83eaa65c.jpeg",
             binding.header
         )
-        val map = user?.id?.let { postVM.getWall(it) }
-        val posts = map?.get(user.id)
         if (user != null) {
             binding.userLoginDetail.text = user.login
         }
@@ -134,21 +134,34 @@ class ProfileFragment : Fragment() {
             user?.avatar
                 ?: "https://zolya.ru/wp-content/uploads/9/8/7/9877e898924c3914b792bfbd83eaa65c.jpeg"
         )
-        posts?.map { post ->
-            when (post.attachment?.type) {
-                kg.zukhridin.nework.domain.enums.AttachmentType.IMAGE -> {
-                    userPostsWithImage.add(post)
-                }
-                kg.zukhridin.nework.domain.enums.AttachmentType.VIDEO -> userPostsWithVideo.add(post)
-                kg.zukhridin.nework.domain.enums.AttachmentType.AUDIO -> userPostsWithAudio.add(post)
-                else -> {
-                    userPostsWithWithoutAttachment.add(post)
+        (user?.id ?: appAuth.authStateFlow.value?.id)?.let {
+            postVM.getWallByUserId(userId = it).observe(viewLifecycleOwner) { posts ->
+                posts?.map { post ->
+                    when (post.attachment?.type) {
+                        kg.zukhridin.nework.domain.enums.AttachmentType.IMAGE -> {
+                            userPostsWithImage.add(post)
+                        }
+
+                        kg.zukhridin.nework.domain.enums.AttachmentType.VIDEO -> userPostsWithVideo.add(
+                            post
+                        )
+
+                        kg.zukhridin.nework.domain.enums.AttachmentType.AUDIO -> userPostsWithAudio.add(
+                            post
+                        )
+
+                        else -> {
+                            userPostsWithWithoutAttachment.add(post)
+                        }
+                    }
                 }
             }
         }
         with(binding) {
             username.text = user?.name
-            binding.posts.text = posts?.size.toString()
+            binding.posts.text = (user?.id ?: appAuth.authStateFlow.value?.id)?.let {
+                postVM.getWallByUserId(userId = it).value?.size.toString()
+            }
             images.text = userPostsWithImage.size.toString()
             videos.text = userPostsWithVideo.size.toString()
             audios.text = userPostsWithAudio.size.toString()

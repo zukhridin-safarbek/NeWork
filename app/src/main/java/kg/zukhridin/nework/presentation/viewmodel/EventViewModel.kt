@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kg.zukhridin.nework.domain.models.ErrorResponseModel
 import kg.zukhridin.nework.domain.models.Event
 import kg.zukhridin.nework.domain.service.repositories.EventRepositoryService
 import kg.zukhridin.nework.domain.storage.repositories.EventRepositoryStorage
@@ -36,11 +37,11 @@ class EventViewModel @Inject constructor(
         }
     }
 
-    suspend fun insertEvent(event: Event): Pair<Boolean, Event?> = withContext(
+    suspend fun insertEvent(event: Event): Pair<Boolean, ErrorResponseModel?> = withContext(
         coroutineContext
     ) {
-        repositoryStorage.insertEvent(event)
-        repositoryService.insertEvent(event)
+        val response = repositoryService.insertEvent(event)
+        response
     }
 
     suspend fun deleteEvent(event: Event): Boolean = withContext(viewModelScope.coroutineContext) {

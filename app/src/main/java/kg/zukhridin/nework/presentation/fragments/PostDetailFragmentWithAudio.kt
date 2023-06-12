@@ -50,7 +50,7 @@ class PostDetailFragmentWithAudio : Fragment(), PostMenuOnClick {
         if (postId != 0) {
             lifecycleScope.launchWhenCreated {
                 if (postId != null) {
-                    val post = postVM.getPostById(postId)
+                    val post = postVM.getWallById(postId)
                     binding.author.text = post.author
                     CoordinationControl.postCoordinationControl(post, binding.coordination)
                     binding.contentText.text =

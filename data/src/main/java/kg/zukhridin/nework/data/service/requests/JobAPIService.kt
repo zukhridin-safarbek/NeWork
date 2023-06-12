@@ -10,7 +10,7 @@ interface JobAPIService {
     suspend fun getMyJobs(): Response<List<JobEntity>>
 
     @GET("{user_id}/jobs/")
-    suspend fun getUserJobs(@Path("user_id") userId: Int): Response<List<JobEntity>>
+    suspend fun getUserJobs(@Path("user_id") userId: Int): Response<List<Job>>
 
     @POST("my/jobs/")
     suspend fun insertJob(@Body job: Job): Response<Job>
