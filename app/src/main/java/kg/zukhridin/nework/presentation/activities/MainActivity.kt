@@ -9,9 +9,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI.setupWithNavController
+import com.yandex.mapkit.MapKitFactory
 import dagger.hilt.android.AndroidEntryPoint
 import kg.zukhridin.nework.R
 import kg.zukhridin.nework.data.storage.database.AppAuth
+import kg.zukhridin.nework.data.util.Constants
 import kg.zukhridin.nework.databinding.ActivityMainBinding
 import kg.zukhridin.nework.presentation.utils.CheckNetwork
 import kg.zukhridin.nework.presentation.utils.Permissions
@@ -37,6 +39,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        MapKitFactory.setApiKey(Constants.YANDEX_MAP_KEY)
+        MapKitFactory.initialize(this)
         lifecycleScope.launchWhenCreated {
             if (checkNetwork.networkAvailable()) {
                 binding.bnv.visibility = View.VISIBLE
@@ -47,7 +51,6 @@ class MainActivity : AppCompatActivity() {
                 binding.bnv.visibility = View.GONE
             }
         }
-
     }
 
     private fun setVisibility() {

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
@@ -14,6 +15,7 @@ import kg.zukhridin.nework.data.storage.dao.PostDao
 import kg.zukhridin.nework.presentation.adapters.PagerAdapter
 import kg.zukhridin.nework.databinding.FragmentHomeBinding
 import kg.zukhridin.nework.presentation.utils.CheckNetwork
+import kg.zukhridin.nework.presentation.viewmodel.PostViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.util.*
 import javax.inject.Inject
@@ -32,6 +34,7 @@ class HomeFragment : Fragment() {
 
     @Inject
     lateinit var eventDao: EventDao
+    private val postVM: PostViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -48,6 +51,9 @@ class HomeFragment : Fragment() {
             binding.internetWarning.visibility = View.GONE
             tabLayout()
         } else {
+            lifecycleScope.launchWhenCreated {
+                postVM.clearAllPosts()
+            }
             binding.internetWarning.visibility = View.VISIBLE
             checkNetworkEveryThreeSecond()
         }

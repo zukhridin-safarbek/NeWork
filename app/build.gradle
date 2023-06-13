@@ -60,12 +60,7 @@ dependencies {
     implementation project(path: ':data')
     // desugar
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
-    // google services
-    implementation 'com.google.android.gms:play-services-location:21.0.1'
-    implementation 'com.google.android.gms:play-services-maps:18.1.0'
-    // google map
-    implementation "com.google.maps.android:maps-ktx:$google_map_version"
-    implementation "com.google.maps.android:maps-utils-ktx:$google_map_version"
+
     // material
     implementation 'com.google.android.material:material:1.8.0'
     // activity
@@ -80,6 +75,7 @@ dependencies {
     // paging 3
     implementation("androidx.paging:paging-runtime-ktx:$paging_version")
     implementation "androidx.paging:paging-rxjava2-ktx:$paging_version"
+    implementation 'com.yandex.android:maps.mobile:4.3.1-lite'
     // recycler view
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     // retrofit

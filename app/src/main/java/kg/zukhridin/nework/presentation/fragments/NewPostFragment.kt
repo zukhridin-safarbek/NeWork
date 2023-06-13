@@ -1,9 +1,7 @@
 package kg.zukhridin.nework.presentation.fragments
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.Color
-import android.location.Location
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -13,15 +11,20 @@ import android.view.ViewGroup
 import android.webkit.MimeTypeMap
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.yandex.mapkit.MapKitFactory
+import com.yandex.mapkit.geometry.Point
+import com.yandex.mapkit.location.FilteringMode
+import com.yandex.mapkit.location.Location
+import com.yandex.mapkit.location.LocationListener
+import com.yandex.mapkit.location.LocationManager
+import com.yandex.mapkit.location.LocationStatus
 import dagger.hilt.android.AndroidEntryPoint
 import kg.zukhridin.nework.R
 import kg.zukhridin.nework.data.storage.database.AppAuth
@@ -40,8 +43,8 @@ import kg.zukhridin.nework.presentation.viewmodel.PostViewModel
 import kg.zukhridin.nework.presentation.viewmodel.UserViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.File
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.util.Timer
+import java.util.TimerTask
 import javax.inject.Inject
 
 
@@ -53,9 +56,16 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
     private val postVM: PostViewModel by viewModels()
     private val userVM: UserViewModel by viewModels()
     private val eventVM: EventViewModel by viewModels()
+    private lateinit var timer: Timer
     private val mentionedIds = mutableListOf<Int>()
-    private var currentLocation: Location? = null
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private var currentLocationYan: Point? = null
+    private var locationManager: LocationManager? = null
+    private var myLocationListener: LocationListener? = null
+    private val DESIRED_ACCURACY = 0.0
+    private val MINIMAL_TIME: Long = 1000
+    private val MINIMAL_DISTANCE = 1.0
+    private val USE_IN_BACKGROUND = false
+    val COMFORTABLE_ZOOM_LEVEL = 18
 
     @Inject
     lateinit var appAuth: AppAuth
@@ -69,11 +79,7 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
         savedInstanceState: Bundle?,
     ): View {
         binding = FragmentNewPostBinding.inflate(inflater, container, false)
-        fusedLocationProviderClient =
-            LocationServices.getFusedLocationProviderClient(requireActivity())
-        if (isLocationPermissionGranted()) {
-            getCurrentLocationUser()
-        }
+        timer = Timer()
         return binding.root
     }
 
@@ -96,30 +102,100 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
 
     private fun isLocationPermissionGranted(): Boolean {
         return if (!permissions.isLocationPermissionGranted(requireContext())) {
-            Log.d(MY_LOG, "if")
             permissions.setLocationPermission(this)
         } else {
-            Log.d(MY_LOG, "else")
             true
         }
     }
 
     @SuppressLint("MissingPermission")
     private fun getCurrentLocationUser() {
+        currentLocationYan = null
         try {
-            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-                if (location != null) {
-                    currentLocation = location
+            val mapkit = MapKitFactory.getInstance()
+            locationManager = mapkit.createLocationManager()
+            myLocationListener = object : LocationListener {
+                override fun onLocationUpdated(location: Location) {
+                    currentLocationYan = location.position
+                }
+
+                override fun onLocationStatusUpdated(locationStatus: LocationStatus) {
+                    Unit
                 }
             }
+            locationSubscribeUpdate()
         } catch (e: Exception) {
-            currentLocation = null
+            println("e: ${e.message}")
+            currentLocationYan = null
         }
+
+    }
+
+    private fun everySecond() {
+        val task = object : TimerTask() {
+            override fun run() {
+                requireActivity().runOnUiThread {
+                    binding.locationProgressbar.isVisible = currentLocationYan == null
+                    binding.add.isClickable = !binding.locationProgressbar.isVisible
+                    binding.locationCheckBox.isVisible = !binding.locationProgressbar.isVisible
+                }
+            }
+        }
+        if (currentLocationYan == null) {
+            timer.schedule(task, 0, 1000)
+        } else {
+            timer.cancel()
+            timer.purge()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        MapKitFactory.getInstance().onStart()
+
+
+    }
+
+    private fun locationSubscribeUpdate() {
+        if (locationManager != null && myLocationListener != null) {
+            locationManager!!.subscribeForLocationUpdates(
+                DESIRED_ACCURACY,
+                MINIMAL_TIME,
+                MINIMAL_DISTANCE,
+                USE_IN_BACKGROUND,
+                FilteringMode.OFF,
+                myLocationListener!!
+            )
+        } else {
+            println("null 1")
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        MapKitFactory.getInstance().onStop()
+        if (locationManager != null && myLocationListener != null) {
+            locationManager!!.unsubscribe(myLocationListener!!)
+        }
+        timer.cancel()
+        timer.purge()
     }
 
     private fun addLocationBtn() {
         binding.addLocation.setOnClickListener {
+            if (!binding.locationCheckBox.isChecked) {
+                if (isLocationPermissionGranted()) {
+                    getCurrentLocationUser()
+
+                }
+                binding.locationProgressbar.visibility = View.VISIBLE
+                binding.locationCheckBox.visibility = View.GONE
+            } else {
+                binding.locationProgressbar.visibility = View.GONE
+                binding.locationCheckBox.visibility = View.VISIBLE
+            }
             binding.locationCheckBox.isChecked = !binding.locationCheckBox.isChecked
+            everySecond()
         }
     }
 
@@ -203,9 +279,9 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
                 null,
                 binding.content.text.toString(),
                 published = CustomOffsetDateTime.timeCode(),
-                coords = if (currentLocation != null) if (binding.locationCheckBox.isChecked) Coordinates(
-                    "${(currentLocation!!.latitude).toFloat()}",
-                    "${(currentLocation!!.longitude).toFloat()}"
+                coords = if (currentLocationYan != null) if (binding.locationCheckBox.isChecked) Coordinates(
+                    "${(currentLocationYan!!.latitude).toFloat()}",
+                    "${(currentLocationYan!!.longitude).toFloat()}"
                 ) else null
                 else null,
                 null,
@@ -230,9 +306,9 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
                 author = user?.name ?: "name",
                 authorAvatar = user?.avatar,
                 content = binding.content.text.toString(),
-                coords = if (currentLocation != null) if (binding.locationCheckBox.isChecked) Coordinates(
-                    "${(currentLocation!!.latitude).toFloat()}",
-                    "${(currentLocation!!.longitude).toFloat()}"
+                coords = if (currentLocationYan != null) if (binding.locationCheckBox.isChecked) Coordinates(
+                    "${(currentLocationYan!!.latitude).toFloat()}",
+                    "${(currentLocationYan!!.longitude).toFloat()}"
                 ) else null
                 else null,
                 datetime = CustomOffsetDateTime.timeCode(),
@@ -254,6 +330,7 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
                         event
                     )
                 if (res.first) {
+                    postVM.insertPostToStorage(post)
                     findNavController().navigate(R.id.action_newPostWithMediaFragment_to_homeFragment)
                 } else {
                     binding.add.visibility = View.VISIBLE

@@ -224,11 +224,20 @@
             android:textColor="@color/black"
             android:textSize="18sp" />
 
+        <ProgressBar
+            android:id="@+id/locationProgressbar"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:visibility="gone"
+            android:layout_gravity="center_vertical|end"
+            android:layout_margin="12dp" />
+
         <com.google.android.material.checkbox.MaterialCheckBox
             android:id="@+id/locationCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|end" />
+            android:layout_gravity="center_vertical|end"
+            android:clickable="false" />
     </FrameLayout>
 
     <FrameLayout

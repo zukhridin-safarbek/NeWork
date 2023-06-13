@@ -8,8 +8,11 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kg.zukhridin.nework.data.service.requests.APIService
 import kg.zukhridin.nework.data.storage.database.AppAuth
+import kg.zukhridin.nework.data.util.InsertMedia
 import kg.zukhridin.nework.domain.enums.MediaType
+import kg.zukhridin.nework.domain.models.Attachment
 import kg.zukhridin.nework.domain.models.ErrorResponseModel
 import kg.zukhridin.nework.domain.models.MediaModel
 import kg.zukhridin.nework.domain.models.Post
@@ -29,6 +32,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.coroutines.coroutineContext
 
 @ExperimentalCoroutinesApi
 @HiltViewModel
@@ -37,6 +41,7 @@ class PostViewModel @Inject constructor(
     private val repositoryStorage: PostRepositoryStorage,
     private val wallRepositoryStorage: WallRepositoryStorage,
     private val wallRepositoryService: WallRepositoryService,
+    private val mediaService: APIService,
     appAuth: AppAuth,
 ) : ViewModel() {
     val data: Flow<PagingData<Post>> = appAuth.authStateFlow.flatMapLatest { myId ->
@@ -100,8 +105,26 @@ class PostViewModel @Inject constructor(
         }
     }
 
+    private suspend fun insertMedia(post: Post):String? = withContext(viewModelScope.coroutineContext){
+        InsertMedia(mediaService).insert(post.attachment?.url!!)
+    }
+
     suspend fun insertPost(post: Post): Pair<Boolean, ErrorResponseModel> {
-        return repositoryService.insertPost(post)
+        return if (post.attachment != null){
+            val media = insertMedia(post)
+            repositoryService.insertPost(post.copy(attachment = Attachment(media!!, post.attachment?.type!!)))
+        }else{
+            repositoryService.insertPost(post)
+        }
+
+    }
+    suspend fun insertPostToStorage(post: Post){
+        if (post.attachment != null){
+            val media = insertMedia(post)
+            repositoryStorage.insertPost(post.copy(attachment = Attachment(media!!, post.attachment?.type!!)))
+        }else{
+            repositoryStorage.insertPost(post)
+        }
     }
 
     suspend fun getPostById(postId: Int): Post = withContext(viewModelScope.coroutineContext) {

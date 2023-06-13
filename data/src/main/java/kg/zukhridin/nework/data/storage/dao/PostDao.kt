@@ -26,7 +26,9 @@ interface PostDao {
     suspend fun clear()
 
     @Query("DELETE FROM PostEntity WHERE id = :id")
-    suspend fun deleteById(id: Int)
+    suspend fun deleteById(id: Int){
+        println("id: id: $id")
+    }
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updatePostById(postEntity: PostEntity)
