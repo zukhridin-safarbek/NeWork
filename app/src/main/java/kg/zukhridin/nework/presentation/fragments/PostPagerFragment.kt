@@ -93,6 +93,7 @@ class PostPagerFragment : Fragment(), PostItemEventClickListener, MediaListener,
         lifecycleScope.launchWhenCreated {
             onSwipeRefresh()
             rcViewControl()
+
         }
     }
 

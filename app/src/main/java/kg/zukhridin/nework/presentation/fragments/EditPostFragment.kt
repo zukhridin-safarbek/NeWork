@@ -12,8 +12,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.paging.PagingData
-import androidx.paging.map
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,7 +25,6 @@ import kg.zukhridin.nework.presentation.utils.hideKeyboard
 import kg.zukhridin.nework.presentation.viewmodel.PostViewModel
 import kg.zukhridin.nework.presentation.viewmodel.UserViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -97,38 +94,36 @@ class EditPostFragment : Fragment(),
     private fun postControl() = lifecycleScope.launchWhenCreated {
         postId = appPrefs.postItemClickStateFlow.value?.postId ?: 0
         if (postId != 0) {
-            postVM.data.collectLatest { value: PagingData<Post> ->
-                value.map { post ->
-                    if (post.id == postId) {
-                        with(binding) {
-                            contentImage.visibility = View.VISIBLE
-                            author.text = post.author
-                            if (post.coords == null) {
-                                coordination.text = getString(R.string.add_location)
-                                coordination.setTextColor(Color.rgb(49, 140, 231))
-                            } else {
-                                coordination.text = post.coords!!.lat
-                            }
-                            post.mentionIds.map {
-                                mentionedIds.add(it)
-                            }
-                            Glide.with(authorAvatar).load(
-                                post.authorAvatar ?: "https://lookw.ru/10/1018/1566950217-3.jpg"
-                            ).fitCenter().circleCrop().into(authorAvatar)
-                            if (post.attachment != null) {
-                                Glide.with(contentImage).load(post.attachment!!.url)
-                                    .into(contentImage)
-                            } else {
-                                contentImage.visibility = View.GONE
-                            }
-                            content.setText(post.content)
-                            content.setSelection(post.content.length)
-                            content.requestFocus()
-                            updatedPost = post
-                        }
+            val post = postVM.getPostById(postId)
+            if (post.id == postId) {
+                with(binding) {
+                    contentImage.visibility = View.VISIBLE
+                    author.text = post.author
+                    if (post.coords == null) {
+                        coordination.text = getString(R.string.add_location)
+                        coordination.setTextColor(Color.rgb(49, 140, 231))
+                    } else {
+                        coordination.text = post.coords!!.lat
                     }
+                    post.mentionIds.map {
+                        mentionedIds.add(it)
+                    }
+                    Glide.with(authorAvatar).load(
+                        post.authorAvatar ?: "https://lookw.ru/10/1018/1566950217-3.jpg"
+                    ).fitCenter().circleCrop().into(authorAvatar)
+                    if (post.attachment != null) {
+                        Glide.with(contentImage).load(post.attachment!!.url)
+                            .into(contentImage)
+                    } else {
+                        contentImage.visibility = View.GONE
+                    }
+                    content.setText(post.content)
+                    content.setSelection(post.content.length)
+                    content.requestFocus()
+                    updatedPost = post
                 }
             }
+
         }
 
     }
@@ -188,15 +183,14 @@ class EditPostFragment : Fragment(),
                 mentionContainer.visibility = View.GONE
             }
         }
-
     }
 
-    override fun itemClick(mentioned: String) {
+    override fun removeItem(item: String) {
         userVM.users.observe(viewLifecycleOwner) { users ->
             users?.map { user ->
-                if (user.login == mentioned) {
+                if (user.login == item) {
                     mentionedIds.remove(user.id)
-                    mentionedLogins.remove(mentioned)
+                    mentionedLogins.remove(item)
                 }
             }
         }

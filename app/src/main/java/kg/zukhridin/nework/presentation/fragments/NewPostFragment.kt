@@ -1,16 +1,17 @@
 package kg.zukhridin.nework.presentation.fragments
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.MimeTypeMap
 import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -28,7 +29,6 @@ import com.yandex.mapkit.location.LocationStatus
 import dagger.hilt.android.AndroidEntryPoint
 import kg.zukhridin.nework.R
 import kg.zukhridin.nework.data.storage.database.AppAuth
-import kg.zukhridin.nework.data.util.Constants.MY_LOG
 import kg.zukhridin.nework.databinding.FragmentNewPostBinding
 import kg.zukhridin.nework.domain.enums.StatusType
 import kg.zukhridin.nework.domain.models.*
@@ -50,8 +50,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 @OptIn(ExperimentalCoroutinesApi::class)
-class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
-    MentionPeopleItemListener {
+class NewPostFragment : Fragment(), MentionPeopleItemListener{
     private lateinit var binding: FragmentNewPostBinding
     private val postVM: PostViewModel by viewModels()
     private val userVM: UserViewModel by viewModels()
@@ -79,8 +78,18 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
         savedInstanceState: Bundle?,
     ): View {
         binding = FragmentNewPostBinding.inflate(inflater, container, false)
-        timer = Timer()
+        checkLocationPermission()
         return binding.root
+    }
+
+    private fun checkLocationPermission() {
+        if (!permissions.isLocationPermissionGranted(requireContext())){
+            binding.addLocation.visibility = View.GONE
+            binding.addLocationPermission.visibility = View.VISIBLE
+        }else{
+            binding.addLocation.visibility = View.VISIBLE
+            binding.addLocationPermission.visibility = View.GONE
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -97,10 +106,18 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
         binding.checkPostOrEvent.setOnClickListener {
             checkPostOrEvent()
         }
+        binding.addLocationPermission.setOnClickListener {
+            if (!permissions.isLocationPermissionGranted(requireContext())){
+                val intent = Intent(Settings.ACTION_SETTINGS)
+                startActivity(intent)
+            }else{
+                checkLocationPermission()
+            }
 
+        }
     }
 
-    private fun isLocationPermissionGranted(): Boolean {
+    private fun checkPermissionOnAttach(): Boolean {
         return if (!permissions.isLocationPermissionGranted(requireContext())) {
             permissions.setLocationPermission(this)
         } else {
@@ -131,6 +148,11 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
 
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        checkPermissionOnAttach()
+    }
+
     private fun everySecond() {
         val task = object : TimerTask() {
             override fun run() {
@@ -151,9 +173,8 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
 
     override fun onStart() {
         super.onStart()
+        timer = Timer()
         MapKitFactory.getInstance().onStart()
-
-
     }
 
     private fun locationSubscribeUpdate() {
@@ -184,10 +205,7 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
     private fun addLocationBtn() {
         binding.addLocation.setOnClickListener {
             if (!binding.locationCheckBox.isChecked) {
-                if (isLocationPermissionGranted()) {
                     getCurrentLocationUser()
-
-                }
                 binding.locationProgressbar.visibility = View.VISIBLE
                 binding.locationCheckBox.visibility = View.GONE
             } else {
@@ -244,8 +262,7 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
                 hideKeyboard()
             }
             val mentionAdapter = MentionPeopleAdapter(
-                mentioned,
-                this@NewPostFragment
+                mentioned, this@NewPostFragment
             )
             mentionRcView.layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -374,19 +391,12 @@ class NewPostFragment : Fragment(), NewPostFragmentDialogItemClickListener,
     }
 
     private suspend fun insertPost(post: Post): Pair<Boolean, ErrorResponseModel> {
-        val response = postVM.insertPost(
+        return postVM.insertPost(
             post
         )
-        Log.d(MY_LOG, "${response.second}")
-        return response
     }
 
-
-    override fun onItemClick(item: String?) {
-        Toast.makeText(requireContext(), item, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun itemClick(mentioned: String) {
-        println("men: $mentioned")
+    override fun removeItem(item: String) {
+        TODO("Not yet implemented")
     }
 }

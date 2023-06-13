@@ -6,10 +6,6 @@ import androidx.recyclerview.widget.RecyclerView
 import kg.zukhridin.nework.databinding.MentionedItemsBinding
 import kg.zukhridin.nework.presentation.adapters.viewholders.MentionPeopleViewHolder
 
-interface MentionPeopleItemListener {
-    fun itemClick(mentioned: String)
-}
-
 class MentionPeopleAdapter(
     private val list: List<String>,
     private val listener: MentionPeopleItemListener

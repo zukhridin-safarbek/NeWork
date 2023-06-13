@@ -84,6 +84,7 @@
     <string name="audio_play">Audio play</string>
     <string name="author_avatar">Author avatar</string>
     <string name="add_new">Add new</string>
+    <string name="set_location_permission">Set location permission</string>
     <string-array name="gallery_media_name_data_array">
         <item>Image</item>
         <item>Video</item>

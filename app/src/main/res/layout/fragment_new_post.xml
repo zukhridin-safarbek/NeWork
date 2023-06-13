@@ -201,7 +201,29 @@
             app:layout_constraintTop_toTopOf="parent"
             app:rippleColor="#E8E8E8" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+    <FrameLayout
+        android:id="@+id/addLocationPermission"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:visibility="gone"
+        android:orientation="vertical">
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height=".6dp"
+            android:layout_gravity="top"
+            android:background="#D6D6D6" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginHorizontal="12dp"
+            android:fontFamily="@font/inter_light"
+            android:text="@string/set_location_permission"
+            android:textColor="@color/black"
+            android:textSize="18sp" />
+    </FrameLayout>
     <FrameLayout
         android:id="@+id/addLocation"
         android:layout_width="match_parent"
