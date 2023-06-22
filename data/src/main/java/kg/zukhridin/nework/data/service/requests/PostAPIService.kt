@@ -22,9 +22,6 @@ interface PostAPIService {
         @Query("count") count: Int
     ): Response<List<PostEntity>>
 
-    @GET("posts/{post_id}/")
-    suspend fun getPostById(@Path("post_id") postId: Int): Response<Post>
-
     @POST("posts/")
     suspend fun insertPost(@Body post: Post): Response<Unit>
 

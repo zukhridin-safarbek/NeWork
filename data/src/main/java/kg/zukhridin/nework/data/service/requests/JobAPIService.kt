@@ -6,8 +6,6 @@ import retrofit2.Response
 import retrofit2.http.*
 
 interface JobAPIService {
-    @GET("my/jobs/")
-    suspend fun getMyJobs(): Response<List<JobEntity>>
 
     @GET("{user_id}/jobs/")
     suspend fun getUserJobs(@Path("user_id") userId: Int): Response<List<Job>>

@@ -36,14 +36,6 @@ class AppPrefs @Inject constructor(@ApplicationContext private val context: Cont
         return prefs.getString(fragmentNameKey, null)
     }
 
-    @Synchronized
-    fun removeFragmentName() {
-        with(prefs.edit()) {
-            clear()
-            apply()
-        }
-    }
-
     val postItemClickStateFlow: StateFlow<PostItemClick?> = _postItemCLickStateFlow.asStateFlow()
 
     @Synchronized
@@ -67,22 +59,4 @@ class AppPrefs @Inject constructor(@ApplicationContext private val context: Cont
     }
 
 
-    @Synchronized
-    fun removePostClickPostId() {
-        _postItemCLickStateFlow.value = PostItemClick(postId = null)
-        with(prefs.edit()) {
-            putInt(postIdKey, 0)
-            apply()
-        }
-    }
-
-    @Synchronized
-    fun removePostClickUserId() {
-        val postId = prefs.getInt(postIdKey, 0)
-        _postItemCLickStateFlow.value = PostItemClick(userId = null, postId = postId)
-        with(prefs.edit()) {
-            putInt(userIdKey, 0)
-            apply()
-        }
-    }
 }

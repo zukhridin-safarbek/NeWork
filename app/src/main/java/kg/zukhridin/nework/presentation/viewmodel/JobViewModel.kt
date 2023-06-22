@@ -30,7 +30,7 @@ class JobViewModel @Inject constructor(
         withContext(viewModelScope.coroutineContext) {
             repositoryService.getUserJobs(userId)
             val listStorage = repositoryStorage.getUserJobs(userId)
-            println("list: $listStorage")
+
                 listStorage
         }
 

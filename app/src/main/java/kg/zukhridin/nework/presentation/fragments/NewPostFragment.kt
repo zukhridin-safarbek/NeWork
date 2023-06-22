@@ -30,6 +30,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kg.zukhridin.nework.R
 import kg.zukhridin.nework.data.storage.database.AppAuth
 import kg.zukhridin.nework.databinding.FragmentNewPostBinding
+import kg.zukhridin.nework.domain.enums.AttachmentType.*
 import kg.zukhridin.nework.domain.enums.StatusType
 import kg.zukhridin.nework.domain.models.*
 import kg.zukhridin.nework.presentation.adapters.MentionPeopleAdapter
@@ -42,6 +43,7 @@ import kg.zukhridin.nework.presentation.viewmodel.EventViewModel
 import kg.zukhridin.nework.presentation.viewmodel.PostViewModel
 import kg.zukhridin.nework.presentation.viewmodel.UserViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Timer
 import java.util.TimerTask
@@ -50,7 +52,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 @OptIn(ExperimentalCoroutinesApi::class)
-class NewPostFragment : Fragment(), MentionPeopleItemListener{
+class NewPostFragment : Fragment(), MentionPeopleItemListener {
     private lateinit var binding: FragmentNewPostBinding
     private val postVM: PostViewModel by viewModels()
     private val userVM: UserViewModel by viewModels()
@@ -64,7 +66,6 @@ class NewPostFragment : Fragment(), MentionPeopleItemListener{
     private val MINIMAL_TIME: Long = 1000
     private val MINIMAL_DISTANCE = 1.0
     private val USE_IN_BACKGROUND = false
-    val COMFORTABLE_ZOOM_LEVEL = 18
 
     @Inject
     lateinit var appAuth: AppAuth
@@ -83,10 +84,10 @@ class NewPostFragment : Fragment(), MentionPeopleItemListener{
     }
 
     private fun checkLocationPermission() {
-        if (!permissions.isLocationPermissionGranted(requireContext())){
+        if (!permissions.isLocationPermissionGranted(requireContext())) {
             binding.addLocation.visibility = View.GONE
             binding.addLocationPermission.visibility = View.VISIBLE
-        }else{
+        } else {
             binding.addLocation.visibility = View.VISIBLE
             binding.addLocationPermission.visibility = View.GONE
         }
@@ -107,10 +108,10 @@ class NewPostFragment : Fragment(), MentionPeopleItemListener{
             checkPostOrEvent()
         }
         binding.addLocationPermission.setOnClickListener {
-            if (!permissions.isLocationPermissionGranted(requireContext())){
+            if (!permissions.isLocationPermissionGranted(requireContext())) {
                 val intent = Intent(Settings.ACTION_SETTINGS)
                 startActivity(intent)
-            }else{
+            } else {
                 checkLocationPermission()
             }
 
@@ -142,7 +143,6 @@ class NewPostFragment : Fragment(), MentionPeopleItemListener{
             }
             locationSubscribeUpdate()
         } catch (e: Exception) {
-            println("e: ${e.message}")
             currentLocationYan = null
         }
 
@@ -187,8 +187,6 @@ class NewPostFragment : Fragment(), MentionPeopleItemListener{
                 FilteringMode.OFF,
                 myLocationListener!!
             )
-        } else {
-            println("null 1")
         }
     }
 
@@ -205,7 +203,7 @@ class NewPostFragment : Fragment(), MentionPeopleItemListener{
     private fun addLocationBtn() {
         binding.addLocation.setOnClickListener {
             if (!binding.locationCheckBox.isChecked) {
-                    getCurrentLocationUser()
+                getCurrentLocationUser()
                 binding.locationProgressbar.visibility = View.VISIBLE
                 binding.locationCheckBox.visibility = View.GONE
             } else {
@@ -275,8 +273,7 @@ class NewPostFragment : Fragment(), MentionPeopleItemListener{
         }
     }
 
-    private suspend fun addPost(user: User?) = with(binding) {
-        println(appAuth.authStateFlow.value?.token)
+    private fun addPost(user: User?) = with(binding) {
         val file = arguments?.file
         var type: String? = null
         val extension: String? =
@@ -296,21 +293,26 @@ class NewPostFragment : Fragment(), MentionPeopleItemListener{
                 null,
                 binding.content.text.toString(),
                 published = CustomOffsetDateTime.timeCode(),
-                coords = if (currentLocationYan != null) if (binding.locationCheckBox.isChecked) Coordinates(
-                    "${(currentLocationYan!!.latitude).toFloat()}",
-                    "${(currentLocationYan!!.longitude).toFloat()}"
-                ) else null
-                else null,
+                coords = currentLocationYan?.let { currentLocationYan ->
+                    if (binding.locationCheckBox.isChecked) {
+                        Coordinates(
+                            "${(currentLocationYan.latitude).toFloat()}",
+                            "${(currentLocationYan.longitude).toFloat()}",
+                        )
+                    } else {
+                        null
+                    }
+                },
                 null,
                 attachment = if (file == null) null else Attachment(
                     file,
                     if ((mimeType?.get(0)
                             ?: 0) == "image"
-                    ) kg.zukhridin.nework.domain.enums.AttachmentType.IMAGE else if ((mimeType?.get(
+                    ) IMAGE else if ((mimeType?.get(
                             0
                         )
                             ?: 0) == "video"
-                    ) kg.zukhridin.nework.domain.enums.AttachmentType.VIDEO else kg.zukhridin.nework.domain.enums.AttachmentType.AUDIO
+                    ) VIDEO else AUDIO
                 ),
                 mentionedMe = appAuth.authStateFlow.value?.id in mentionedIds,
                 mentionIds = mentionedIds,
@@ -333,21 +335,23 @@ class NewPostFragment : Fragment(), MentionPeopleItemListener{
                     file,
                     if ((mimeType?.get(0)
                             ?: 0) == "image"
-                    ) kg.zukhridin.nework.domain.enums.AttachmentType.IMAGE else if ((mimeType?.get(
+                    ) IMAGE else if ((mimeType?.get(
                             0
                         )
                             ?: 0) == "video"
-                    ) kg.zukhridin.nework.domain.enums.AttachmentType.VIDEO else kg.zukhridin.nework.domain.enums.AttachmentType.AUDIO
+                    ) VIDEO else AUDIO
                 ),
                 type = StatusType.ONLINE, participatedByMe = false
             )
-            lifecycleScope.launchWhenCreated {
-                val res =
-                    if (!binding.checkPostOrEvent.isChecked) insertPost(post) else insertEvent(
-                        event
-                    )
-                if (res.first) {
-                    postVM.insertPostToStorage(post)
+            val res =
+                if (!binding.checkPostOrEvent.isChecked) insertPost(post) else insertEvent(
+                    event
+                )
+            res.let { result ->
+                if (result.first == true) {
+                    lifecycleScope.launch {
+                        postVM.insertPostToStorage(post)
+                    }
                     findNavController().navigate(R.id.action_newPostWithMediaFragment_to_homeFragment)
                 } else {
                     binding.add.visibility = View.VISIBLE
@@ -358,12 +362,26 @@ class NewPostFragment : Fragment(), MentionPeopleItemListener{
                 }
             }
 
+
         }
 
     }
 
-    private suspend fun insertEvent(event: Event): Pair<Boolean, ErrorResponseModel?> {
-        return eventVM.insertEvent(event)
+    private fun insertEvent(event: Event): Pair<Boolean?, ErrorResponseModel?> {
+        eventVM.insertEvent(event)
+        var first: Boolean? = null
+        var second: ErrorResponseModel? = null
+        eventVM.responseIsSuccessFull.observe(viewLifecycleOwner) { bool->
+            bool?.let {
+                first = it
+            }
+        }
+        eventVM.responseReason.observe(viewLifecycleOwner) { reason ->
+            reason?.let {
+                second = it
+            }
+        }
+        return Pair(first, second)
     }
 
     private fun closeBtn() {
@@ -390,10 +408,11 @@ class NewPostFragment : Fragment(), MentionPeopleItemListener{
         }
     }
 
-    private suspend fun insertPost(post: Post): Pair<Boolean, ErrorResponseModel> {
-        return postVM.insertPost(
-            post
-        )
+    private fun insertPost(post: Post): Pair<Boolean?, ErrorResponseModel?> {
+        postVM.insertPost(post)
+        val first = postVM.responseIsSuccessFull.value
+        val second = postVM.responseReason.value
+        return Pair(first, second)
     }
 
     override fun removeItem(item: String) {

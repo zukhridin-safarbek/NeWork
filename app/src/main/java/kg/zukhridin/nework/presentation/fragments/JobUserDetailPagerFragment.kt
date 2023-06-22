@@ -2,7 +2,9 @@ package kg.zukhridin.nework.presentation.fragments
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,12 +19,12 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kg.zukhridin.nework.R
-import kg.zukhridin.nework.presentation.adapters.JobAdapter
 import kg.zukhridin.nework.data.storage.database.AppAuth
-import kg.zukhridin.nework.databinding.FragmentJobUserDetailPagerBinding
-import kg.zukhridin.nework.domain.models.Job
 import kg.zukhridin.nework.data.util.AppPrefs
 import kg.zukhridin.nework.data.util.Constants.USER
+import kg.zukhridin.nework.databinding.FragmentJobUserDetailPagerBinding
+import kg.zukhridin.nework.domain.models.Job
+import kg.zukhridin.nework.presentation.adapters.JobAdapter
 import kg.zukhridin.nework.presentation.viewmodel.JobViewModel
 import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
@@ -67,25 +69,25 @@ class JobUserDetailPagerFragment : Fragment() {
             deleteJob()
         }
 
-            (if (userId == 0) appAuth.authStateFlow.value?.id else userId).let { valueId ->
-                if (valueId != null) {
-                    jobVM.getUserJobs(
-                        valueId
-                    ).second.collectLatest {jobs->
-                        if (jobs.isEmpty()) {
-                            binding.rcView.visibility = View.GONE
-                            binding.emptyText.visibility = View.VISIBLE
-                        } else {
-                            binding.rcView.visibility = View.VISIBLE
-                            binding.emptyText.visibility = View.GONE
-                            jobs.map { job ->
-                                jobsHere.add(job)
-                            }
-                            jobAdapter.submitList(jobs)
+        (if (userId == 0) appAuth.authStateFlow.value?.id else userId).let { valueId ->
+            if (valueId != null) {
+                jobVM.getUserJobs(
+                    valueId
+                ).second.collectLatest { jobs ->
+                    if (jobs.isEmpty()) {
+                        binding.rcView.visibility = View.GONE
+                        binding.emptyText.visibility = View.VISIBLE
+                    } else {
+                        binding.rcView.visibility = View.VISIBLE
+                        binding.emptyText.visibility = View.GONE
+                        jobs.map { job ->
+                            jobsHere.add(job)
                         }
+                        jobAdapter.submitList(jobs)
                     }
                 }
             }
+        }
     }
 
     private fun deleteJob() {
@@ -107,7 +109,6 @@ class JobUserDetailPagerFragment : Fragment() {
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     val position = viewHolder.absoluteAdapterPosition
                     lifecycleScope.launchWhenCreated {
-                        println(jobsHere[position])
                         jobVM.deleteMyJob(jobsHere[position])
                         jobsHere.remove(jobsHere[position])
                     }

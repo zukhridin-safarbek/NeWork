@@ -5,7 +5,6 @@ import androidx.paging.*
 import kg.zukhridin.nework.data.storage.dao.PostDao
 import kg.zukhridin.nework.data.service.requests.PostAPIService
 import kg.zukhridin.nework.data.entity.PostEntity
-import kg.zukhridin.nework.data.util.Constants.MY_LOG
 
 @OptIn(ExperimentalPagingApi::class)
 class PostRemoteMediator(

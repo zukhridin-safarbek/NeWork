@@ -15,8 +15,6 @@ import kg.zukhridin.nework.presentation.utils.CustomOffsetDateTime
 import kg.zukhridin.nework.presentation.utils.avatarControl
 import kg.zukhridin.nework.presentation.utils.postSetAuthorNameToContent
 import kg.zukhridin.nework.presentation.utils.showFullTextMoreBtn
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 class PostViewHolder(
     private val binding: PostItemBinding,
@@ -121,7 +119,11 @@ class PostViewHolder(
             post.authorAvatar
                 ?: AUTHOR_AVATAR
         )
-        CoordinationControl.postCoordinationControl(post, binding.postHeader.coordination)
+        if (post.coords != null){
+            CoordinationControl.postCoordinationControl(post, binding.postHeader.coordination)
+        }else{
+            binding.postHeader.coordination.visibility = View.GONE
+        }
         binding.postHeader.postHeader.setOnClickListener {
             listener.userDetail(post.authorId)
         }

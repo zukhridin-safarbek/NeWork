@@ -48,7 +48,6 @@ class ProfileFragment : Fragment() {
     lateinit var appPrefs: AppPrefs
     private val postVM: PostViewModel by viewModels()
     private val userVM: UserViewModel by viewModels()
-    private val jobVM: JobViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

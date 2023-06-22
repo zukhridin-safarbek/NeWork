@@ -32,7 +32,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.coroutines.coroutineContext
 
 @ExperimentalCoroutinesApi
 @HiltViewModel
@@ -54,18 +53,25 @@ class PostViewModel @Inject constructor(
     private val _mediasFromExternalStorage = MutableLiveData<ArrayList<MediaModel>>()
     val mediasFromExternalStorage: LiveData<ArrayList<MediaModel>>
         get() = _mediasFromExternalStorage
-
-
+    private val _responseIsSuccessFull = MutableLiveData<Boolean?>()
+    val responseIsSuccessFull: LiveData<Boolean?> = _responseIsSuccessFull
+    private val _responseReason = MutableLiveData<ErrorResponseModel?>()
+    val responseReason: LiveData<ErrorResponseModel?> = _responseReason
     fun likeById(post: Post) {
-        viewModelScope.launch {
-            if (post.likedByMe) {
-                repositoryStorage.dislikeById(post)
-                repositoryService.dislikeById(post)
-            } else {
-                repositoryStorage.likeById(post)
-                repositoryService.likeById(post)
+        try {
+            viewModelScope.launch {
+                if (post.likedByMe) {
+                    repositoryStorage.dislikeById(post)
+                    repositoryService.dislikeById(post)
+                } else {
+                    repositoryStorage.likeById(post)
+                    repositoryService.likeById(post)
+                }
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
+
     }
 
     fun deleteById(id: Int) = viewModelScope.launch {
@@ -93,10 +99,12 @@ class PostViewModel @Inject constructor(
                     val medias = context.getImagesFromGallery()
                     _mediasFromExternalStorage.value = medias
                 }
+
                 MediaType.VIDEO -> {
                     val medias = context.getVideosFromGallery()
                     _mediasFromExternalStorage.value = medias
                 }
+
                 MediaType.AUDIO -> {
                     val medias = context.getAudiosFromGallery()
                     _mediasFromExternalStorage.value = medias
@@ -105,24 +113,40 @@ class PostViewModel @Inject constructor(
         }
     }
 
-    private suspend fun insertMedia(post: Post):String? = withContext(viewModelScope.coroutineContext){
-        InsertMedia(mediaService).insert(post.attachment?.url!!)
-    }
-
-    suspend fun insertPost(post: Post): Pair<Boolean, ErrorResponseModel> {
-        return if (post.attachment != null){
-            val media = insertMedia(post)
-            repositoryService.insertPost(post.copy(attachment = Attachment(media!!, post.attachment?.type!!)))
-        }else{
-            repositoryService.insertPost(post)
+    private suspend fun insertMedia(post: Post): String? =
+        withContext(viewModelScope.coroutineContext) {
+            InsertMedia(mediaService).insert(post.attachment?.url!!)
         }
 
+    fun insertPost(post: Post) = viewModelScope.launch {
+        var mediaResult: String?
+        val response = post.attachment?.let {
+            mediaResult = insertMedia(post)
+            repositoryService.insertPost(
+                post.copy(
+                    attachment = Attachment(
+                        mediaResult!!,
+                        post.attachment?.type!!
+                    )
+                )
+            )
+        } ?: repositoryService.insertPost(post)
+        _responseIsSuccessFull.postValue(response.first)
+        _responseReason.postValue(response.second)
     }
-    suspend fun insertPostToStorage(post: Post){
-        if (post.attachment != null){
+
+    suspend fun insertPostToStorage(post: Post) {
+        if (post.attachment != null) {
             val media = insertMedia(post)
-            repositoryStorage.insertPost(post.copy(attachment = Attachment(media!!, post.attachment?.type!!)))
-        }else{
+            repositoryStorage.insertPost(
+                post.copy(
+                    attachment = Attachment(
+                        media!!,
+                        post.attachment?.type!!
+                    )
+                )
+            )
+        } else {
             repositoryStorage.insertPost(post)
         }
     }
@@ -134,12 +158,12 @@ class PostViewModel @Inject constructor(
     suspend fun clearAllPosts() {
         repositoryStorage.clearAllPosts()
     }
-    suspend fun getWallByUserId(userId: Int) = withContext(viewModelScope.coroutineContext){
+
+    suspend fun getWallByUserId(userId: Int) = withContext(viewModelScope.coroutineContext) {
         wallRepositoryService.getWallsByUserId(userId)
     }
 
-    val wallData: Flow<PagingData<Post>> = wallRepositoryStorage.data.flowOn(Dispatchers.Default)
-    suspend fun getWallById(wallId: Int): Post = withContext(viewModelScope.coroutineContext){
+    suspend fun getWallById(wallId: Int): Post = withContext(viewModelScope.coroutineContext) {
         wallRepositoryStorage.getWallById(wallId)
     }
 }

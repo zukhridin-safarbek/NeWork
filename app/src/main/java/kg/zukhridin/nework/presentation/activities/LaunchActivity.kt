@@ -24,7 +24,6 @@ class LaunchActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_launch)
-        println(appAuth.authStateFlow.value?.token)
 
         Handler(Looper.getMainLooper()).postDelayed({
             if (appAuth.authStateFlow.value?.token.isNullOrEmpty()) {

@@ -26,6 +26,7 @@ import kg.zukhridin.nework.data.storage.dao.PostDao
 import kg.zukhridin.nework.data.storage.database.AppAuth
 import kg.zukhridin.nework.data.util.AppPrefs
 import kg.zukhridin.nework.databinding.FragmentPostPagerBinding
+import kg.zukhridin.nework.domain.enums.AttachmentType.*
 import kg.zukhridin.nework.domain.models.Post
 import kg.zukhridin.nework.domain.models.User
 import kg.zukhridin.nework.presentation.adapters.MentionPeopleItemShowAdapter
@@ -39,15 +40,11 @@ import kg.zukhridin.nework.presentation.utils.ItemMenu
 import kg.zukhridin.nework.presentation.utils.PostMenuOnClick
 import kg.zukhridin.nework.presentation.viewmodel.PostViewModel
 import kg.zukhridin.nework.presentation.viewmodel.UserViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.supervisorScope
 import java.util.*
 import javax.inject.Inject
 
@@ -132,15 +129,9 @@ class PostPagerFragment : Fragment(), PostItemEventClickListener, MediaListener,
     }
 
     override fun onLike(post: Post) {
-        if (checkNetwork.networkAvailable()) {
-            postVM.likeById(post)
-        } else {
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.you_are_have_not_internet),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+
+        postVM.likeById(post)
+
     }
 
     override fun onMenuClick(post: Post, view: View) {
@@ -155,22 +146,19 @@ class PostPagerFragment : Fragment(), PostItemEventClickListener, MediaListener,
             window?.setBackgroundDrawable(ColorDrawable(Color.argb(25, 0, 0, 0)))
         }
         val rcView = dialogMention.findViewById<RecyclerView>(R.id.rcView)
-        val list = mutableListOf<User?>()
-        val job = CoroutineScope(Dispatchers.Default).launch {
-            for (i in post.mentionIds) {
-                list.add(userVM.getUser(i))
-            }
-        }
-
-        runBlocking {
-            job.join()
+        viewLifecycleOwner.lifecycleScope.launch {
+            val users = post.mentionIds.map {
+                async {
+                    userVM.getUser(it)
+                }
+            }.awaitAll()
             val mpAdapter = MentionPeopleItemShowAdapter(
-                list = list,
+                list = users,
                 this@PostPagerFragment
             )
             rcView?.adapter = mpAdapter
+            dialogMention.show()
         }
-        dialogMention.show()
 
     }
 
@@ -181,12 +169,10 @@ class PostPagerFragment : Fragment(), PostItemEventClickListener, MediaListener,
         )
     }
 
-    override fun postItemClick(post: Post) {
-    }
-
+    override fun postItemClick(post: Post) = Unit
     override fun play(value: Any) {
         val post = value as Post
-        if (post.attachment?.type == kg.zukhridin.nework.domain.enums.AttachmentType.VIDEO) {
+        if (post.attachment?.type == VIDEO) {
             val dialog = Dialog(requireContext())
             dialog.setContentView(R.layout.layout_bottom_sheet_video_player)
             val videoView = dialog.findViewById<PlayerView>(R.id.videoView)
@@ -221,7 +207,7 @@ class PostPagerFragment : Fragment(), PostItemEventClickListener, MediaListener,
                     Toast.LENGTH_SHORT
                 ).show()
             }
-        } else if (post.attachment?.type == kg.zukhridin.nework.domain.enums.AttachmentType.AUDIO) {
+        } else if (post.attachment?.type == AUDIO) {
             val dialog = Dialog(requireContext())
             dialog.setContentView(R.layout.layout_bottom_sheet_audio_player)
             val audioView = dialog.findViewById<PlayerView>(R.id.audioView)
@@ -261,18 +247,10 @@ class PostPagerFragment : Fragment(), PostItemEventClickListener, MediaListener,
 
 
     override fun updatePost(post: Post) {
-        if (checkNetwork.networkAvailable()) {
-            appPrefs.setPostClickPostId(post.id)
-            findNavController().navigate(
-                R.id.action_homeFragment_to_editPostFragment
-            )
-        } else {
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.you_are_have_not_internet),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+        appPrefs.setPostClickPostId(post.id)
+        findNavController().navigate(
+            R.id.action_homeFragment_to_editPostFragment
+        )
     }
 
     override fun deletePost(post: Post) {

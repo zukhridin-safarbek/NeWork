@@ -109,10 +109,11 @@ class EventViewHolder(
             event.authorAvatar
                 ?: AUTHOR_AVATAR
         )
-        CoordinationControl.eventCoordinationControl(event, binding.postHeader.coordination)
-//        binding.postHeader.postHeader.setOnClickListener {
-//            listener.userDetail(event.authorId)
-//        }
+        if (event.coords != null){
+            CoordinationControl.eventCoordinationControl(event, binding.postHeader.coordination)
+        }else{
+            binding.postHeader.coordination.visibility = View.GONE
+        }
         binding.postHeader.itemSettings.setOnClickListener {
             listener.onMenuClick(event, it)
         }

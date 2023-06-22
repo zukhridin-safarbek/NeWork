@@ -11,7 +11,6 @@ class MentionPeopleItemShowViewHolder(private val binding: MentionedPeopleItemLi
     RecyclerView.ViewHolder(binding.root) {
     fun bind(user: User?) {
         if (user != null){
-            println("user.login: ${user.login}")
             binding.mentionPeopleBtn.text = user.login
             binding.mentionPeopleBtn.setOnClickListener {
                 mentionItemClickListener.mentionItemClick(user)

@@ -19,7 +19,6 @@ class UserRepositoryImplService @Inject constructor(
     private val authService: AuthAPIService,
     private val appAuth: AppAuth,
 ) : UserRepositoryService {
-    private val users = mutableListOf<List<User>?>()
 
     override suspend fun userAuthentication(
         login: String,

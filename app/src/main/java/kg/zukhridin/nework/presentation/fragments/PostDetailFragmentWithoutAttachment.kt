@@ -45,13 +45,16 @@ class PostDetailFragmentWithoutAttachment : Fragment(), PostMenuOnClick {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val postId = appPrefs.postItemClickStateFlow.value?.postId
-        println("postid: $postId")
         if (postId != 0) {
             lifecycleScope.launchWhenCreated {
                 if (postId != null) {
                     val post = postVM.getWallById(postId)
                     binding.author.text = post.author
-                    CoordinationControl.postCoordinationControl(post, binding.coordination)
+                    if (post.coords != null){
+                        CoordinationControl.postCoordinationControl(post, binding.coordination)
+                    }else{
+                        binding.coordination.visibility = View.GONE
+                    }
                     binding.contentText.text = post.content
                     binding.likeTv.text =
                         post.likeOwnerIds.size.toString()
@@ -63,9 +66,7 @@ class PostDetailFragmentWithoutAttachment : Fragment(), PostMenuOnClick {
                         ).postMenu(post, this@PostDetailFragmentWithoutAttachment)
                     }
                     binding.mentionPeople.isVisible = post.mentionIds.isNotEmpty()
-                    binding.mentionPeople.setOnClickListener {
-                        TODO("listener.onMentionPeopleClick(post)")
-                    }
+
                     avatarControl(
                         binding.authorAvatar,
                         post.authorAvatar

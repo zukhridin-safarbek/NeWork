@@ -167,21 +167,21 @@
         android:layout_height="wrap_content" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/mentionContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/mentionContainer"
         android:layout_marginStart="24dp"
         android:orientation="horizontal"
         android:visibility="gone"
         tools:visibility="visible">
 
         <com.google.android.material.textfield.MaterialAutoCompleteTextView
-            android:id="@+id/mentionField"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:fontFamily="@font/inter_extra_light"
             android:hint="@string/mention_people"
             android:maxLines="1"
+            android:id="@+id/mentionField"
             android:textSize="14sp"
             app:layout_constraintEnd_toStartOf="@+id/mention_close_btn"
             app:layout_constraintStart_toStartOf="parent"
@@ -263,7 +263,6 @@
     </FrameLayout>
 
     <FrameLayout
-        android:id="@+id/addLink"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:orientation="vertical">

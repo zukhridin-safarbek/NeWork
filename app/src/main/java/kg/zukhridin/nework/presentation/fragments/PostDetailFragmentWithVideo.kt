@@ -17,7 +17,6 @@ import kg.zukhridin.nework.domain.models.Post
 import kg.zukhridin.nework.data.util.AppPrefs
 import kg.zukhridin.nework.data.util.Constants.PROFILE_FRAGMENT
 import kg.zukhridin.nework.data.util.Constants.USER_DETAIL_FRAGMENT
-import kg.zukhridin.nework.domain.enums.AttachmentType
 import kg.zukhridin.nework.presentation.utils.*
 import kg.zukhridin.nework.presentation.viewmodel.PostViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -40,7 +39,7 @@ class PostDetailFragmentWithVideo : Fragment(), PostMenuOnClick {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentPostDetailWithVideoBinding.inflate(inflater, container, false)
-        player = CustomMediaPlayer(requireContext(), binding.playerView, kg.zukhridin.nework.domain.enums.AttachmentType.VIDEO)
+        player = CustomMediaPlayer(requireContext(), binding.playerView)
         return binding.root
     }
 
@@ -52,7 +51,11 @@ class PostDetailFragmentWithVideo : Fragment(), PostMenuOnClick {
                 if (postId != null) {
                     val post = postVM.getWallById(postId)
                     binding.author.text = post.author
-                    CoordinationControl.postCoordinationControl(post, binding.coordination)
+                    if (post.coords != null){
+                        CoordinationControl.postCoordinationControl(post, binding.coordination)
+                    }else{
+                        binding.coordination.visibility = View.GONE
+                    }
                     binding.likeTv.text =
                         post.likeOwnerIds.size.toString()
                     binding.itemSettings.isVisible = post.ownedByMe
@@ -63,9 +66,6 @@ class PostDetailFragmentWithVideo : Fragment(), PostMenuOnClick {
                             ?: "https://zolya.ru/wp-content/uploads/9/8/7/9877e898924c3914b792bfbd83eaa65c.jpeg"
                     )
                     binding.mentionPeople.isVisible = post.mentionIds.isNotEmpty()
-                    binding.mentionPeople.setOnClickListener {
-                        TODO("listener.onMentionPeopleClick(post)")
-                    }
                     if (!post.link.isNullOrBlank()) {
                         binding.link.visibility = View.VISIBLE
                         binding.link.text = post.link

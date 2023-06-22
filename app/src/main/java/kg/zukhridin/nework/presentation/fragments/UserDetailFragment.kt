@@ -21,6 +21,7 @@ import kg.zukhridin.nework.databinding.FragmentUserProfileBinding
 import kg.zukhridin.nework.data.util.AppPrefs
 import kg.zukhridin.nework.data.util.Constants.USER
 import kg.zukhridin.nework.data.util.Constants.USER_DETAIL_FRAGMENT
+import kg.zukhridin.nework.domain.enums.AttachmentType
 import kg.zukhridin.nework.domain.models.Post
 import kg.zukhridin.nework.domain.models.User
 import kg.zukhridin.nework.presentation.utils.changeHeaderBackground
@@ -71,7 +72,6 @@ class UserDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         userId = appPrefs.postItemClickStateFlow.value?.userId ?: 0
-        println("user: ${appPrefs.postItemClickStateFlow.value?.userId}")
         binding.close.setOnClickListener {
             findNavController().navigateUp()
         }
@@ -154,19 +154,18 @@ class UserDetailFragment : Fragment() {
                 ?: "https://zolya.ru/wp-content/uploads/9/8/7/9877e898924c3914b792bfbd83eaa65c.jpeg"
         )
         postVM.getWallByUserId(userId).observe(viewLifecycleOwner) { posts ->
-            println("posts: $posts")
             posts?.map { post ->
                 userPosts.add(post)
                 when (post.attachment?.type) {
-                    kg.zukhridin.nework.domain.enums.AttachmentType.IMAGE -> {
+                    AttachmentType.IMAGE -> {
                         userPostsWithImage.add(post)
                     }
 
-                    kg.zukhridin.nework.domain.enums.AttachmentType.VIDEO -> userPostsWithVideo.add(
+                    AttachmentType.VIDEO -> userPostsWithVideo.add(
                         post
                     )
 
-                    kg.zukhridin.nework.domain.enums.AttachmentType.AUDIO -> userPostsWithAudio.add(
+                    AttachmentType.AUDIO -> userPostsWithAudio.add(
                         post
                     )
 

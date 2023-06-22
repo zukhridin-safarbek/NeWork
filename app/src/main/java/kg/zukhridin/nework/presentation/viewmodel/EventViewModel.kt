@@ -1,5 +1,7 @@
 package kg.zukhridin.nework.presentation.viewmodel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -22,11 +24,10 @@ class EventViewModel @Inject constructor(
     private val repositoryStorage: EventRepositoryStorage
 ) : ViewModel() {
     val data: Flow<PagingData<Event>> = repositoryStorage.data.flowOn(Dispatchers.Default)
-
-    suspend fun clearAllEvents() {
-        repositoryStorage.clearAllEvents()
-    }
-
+    private val _responseIsSuccessFull = MutableLiveData<Boolean?>()
+    val responseIsSuccessFull: LiveData<Boolean?> = _responseIsSuccessFull
+    private val _responseReason = MutableLiveData<ErrorResponseModel?>()
+    val responseReason: LiveData<ErrorResponseModel?> = _responseReason
     fun eventLikeById(event: Event)= viewModelScope.launch {
         if (event.likedByMe) {
             repositoryStorage.eventDislikeById(event)
@@ -37,11 +38,10 @@ class EventViewModel @Inject constructor(
         }
     }
 
-    suspend fun insertEvent(event: Event): Pair<Boolean, ErrorResponseModel?> = withContext(
-        coroutineContext
-    ) {
+    fun insertEvent(event: Event) = viewModelScope.launch {
         val response = repositoryService.insertEvent(event)
-        response
+        _responseIsSuccessFull.postValue(response.first)
+        _responseReason.postValue(response.second)
     }
 
     suspend fun deleteEvent(event: Event): Boolean = withContext(viewModelScope.coroutineContext) {

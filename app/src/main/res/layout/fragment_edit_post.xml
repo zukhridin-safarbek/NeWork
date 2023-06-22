@@ -172,12 +172,12 @@
                 android:orientation="vertical">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/mentionContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="24dp"
                     android:orientation="horizontal"
                     android:visibility="gone"
+                    android:id="@+id/mentionContainer"
                     tools:visibility="visible">
 
                     <androidx.recyclerview.widget.RecyclerView
@@ -189,12 +189,12 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                        android:id="@+id/mentionField"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/inter_extra_light"
                         android:hint="@string/mention_people"
                         android:maxLines="1"
+                        android:id="@+id/mentionField"
                         android:textSize="14sp"
                         app:layout_constraintEnd_toStartOf="@+id/mention_close_btn"
                         app:layout_constraintStart_toStartOf="parent"

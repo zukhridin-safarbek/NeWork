@@ -2,7 +2,6 @@ package kg.zukhridin.nework.data.storage.repository
 
 import kg.zukhridin.nework.data.entity.JobEntity
 import kg.zukhridin.nework.data.storage.dao.JobDao
-import kg.zukhridin.nework.data.storage.database.AppAuth
 import kg.zukhridin.nework.domain.models.Job
 import kg.zukhridin.nework.domain.storage.repositories.JobRepositoryStorage
 import kotlinx.coroutines.flow.Flow
@@ -10,8 +9,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class JobRepositoryImplStorage @Inject constructor(
-    private val jobDao: JobDao,
-    private val appAuth: AppAuth
+    private val jobDao: JobDao
 ) : JobRepositoryStorage {
 
     override suspend fun insertJob(job: Job, userId: Int): Boolean {

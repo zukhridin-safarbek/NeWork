@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
     <LinearLayout
-        android:id="@+id/likeCountContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
@@ -15,7 +14,8 @@
         android:paddingHorizontal="4dp"
         app:layout_constraintBottom_toBottomOf="@id/likeBtn"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/likeBtn">
+        app:layout_constraintTop_toTopOf="@id/likeBtn"
+        tools:ignore="MissingClass">
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="20dp"
@@ -120,19 +120,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/likeBtn" />
 
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/eventsBarrier"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        app:barrierDirection="bottom"
-        app:constraint_referenced_ids="likeCountIcon, likeBtn" />
-
     <LinearLayout
         android:id="@+id/containerContentText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/eventsBarrier">
+        app:layout_constraintTop_toBottomOf="@+id/likeBtn">
 
         <TextView
             android:id="@+id/contentText"

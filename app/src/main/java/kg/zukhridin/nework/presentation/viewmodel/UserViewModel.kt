@@ -36,13 +36,9 @@ class UserViewModel @Inject constructor(
         name: String
     ): Pair<Boolean, ErrorResponseModel?> =
         withContext(viewModelScope.coroutineContext) {
-            if (photo.value != null) {
-                println("registrationWithPhoto")
-                repository.registrationWithPhoto(login, password, name, photo.value!!)
-            } else {
-                println("registrationWithOutPhoto")
-                repository.registrationWithOutPhoto(login, password, name)
-            }
+            photo.value?.let { photoModel ->
+                repository.registrationWithPhoto(login, password, name, photoModel)
+            } ?: repository.registrationWithOutPhoto(login, password, name)
         }
 
     suspend fun userAuthentication(
@@ -60,6 +56,7 @@ class UserViewModel @Inject constructor(
         val response = repository.getUsers()
         _users.value = (response)
     }
+
     fun savePhoto(uri: Uri?, file: File?) {
         _photo.value = PhotoModel(uri, file)
 

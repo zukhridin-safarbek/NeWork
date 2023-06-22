@@ -5,13 +5,14 @@ import android.provider.MediaStore
 import kg.zukhridin.nework.domain.enums.MediaType
 import kg.zukhridin.nework.domain.models.MediaModel
 
-     fun Context.getImagesFromGallery(): ArrayList<MediaModel> {
-        val medias = ArrayList<MediaModel>()
-        val imagesUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        val projection = arrayOf(MediaStore.Images.Media.DATA)
+fun Context.getImagesFromGallery(): ArrayList<MediaModel> {
+    val medias = ArrayList<MediaModel>()
+    val imagesUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+    val projection = arrayOf(MediaStore.Images.Media.DATA)
+    try {
         val cursor = this.contentResolver.query(imagesUri, projection, null, null, null)
-        try {
-            cursor!!.moveToFirst()
+        cursor?.use {
+            cursor.moveToFirst()
             do {
                 val media = MediaModel(
                     cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)),
@@ -19,20 +20,22 @@ import kg.zukhridin.nework.domain.models.MediaModel
                 )
                 medias.add(media)
             } while (cursor.moveToNext())
-            cursor.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
-        return medias
-    }
 
-     fun Context.getVideosFromGallery(): ArrayList<MediaModel> {
-        val medias = ArrayList<MediaModel>()
-        val videosUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-        val projection = arrayOf(MediaStore.Video.VideoColumns.DATA)
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+    return medias
+}
+
+fun Context.getVideosFromGallery(): ArrayList<MediaModel> {
+    val medias = ArrayList<MediaModel>()
+    val videosUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+    val projection = arrayOf(MediaStore.Video.VideoColumns.DATA)
+    try {
         val cursor = this.contentResolver.query(videosUri, projection, null, null, null)
-        try {
-            cursor!!.moveToNext()
+        cursor?.use {
+            cursor.moveToNext()
             do {
                 val media = MediaModel(
                     cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA)),
@@ -40,20 +43,21 @@ import kg.zukhridin.nework.domain.models.MediaModel
                 )
                 medias.add(media)
             } while (cursor.moveToNext())
-            cursor.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
-        return medias
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
+    return medias
+}
 
-     fun Context.getAudiosFromGallery(): ArrayList<MediaModel> {
-        val medias = ArrayList<MediaModel>()
-        val audiosUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-        val projection = arrayOf(MediaStore.Audio.AudioColumns.DATA)
+fun Context.getAudiosFromGallery(): ArrayList<MediaModel> {
+    val medias = ArrayList<MediaModel>()
+    val audiosUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+    val projection = arrayOf(MediaStore.Audio.AudioColumns.DATA)
+    try {
         val cursor = this.contentResolver.query(audiosUri, projection, null, null, null)
-        try {
-            cursor!!.moveToNext()
+        cursor?.use {
+            cursor.moveToNext()
             do {
                 val media = MediaModel(
                     cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA)),
@@ -61,9 +65,10 @@ import kg.zukhridin.nework.domain.models.MediaModel
                 )
                 medias.add(media)
             } while (cursor.moveToNext())
-            cursor.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
-        return medias
+
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
+    return medias
+}

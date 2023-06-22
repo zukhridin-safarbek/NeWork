@@ -54,21 +54,6 @@ class Permissions {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    fun setLocationPermission(activity: FragmentActivity): Boolean {
-        var isGranted: Boolean = false
-        val requestPermission =
-            activity.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-                isGranted = it
-            }
-        if (ContextCompat.checkSelfPermission(
-                activity.applicationContext,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermission.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
-        return isGranted
-    }
     fun setLocationPermission(fragment: Fragment): Boolean {
         var isGranted: Boolean = false
         val requestPermission =

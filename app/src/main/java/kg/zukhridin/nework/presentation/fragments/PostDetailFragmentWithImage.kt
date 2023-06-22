@@ -75,7 +75,11 @@ class PostDetailFragmentWithImage : Fragment(), PostMenuOnClick {
                         ?: "https://zolya.ru/wp-content/uploads/9/8/7/9877e898924c3914b792bfbd83eaa65c.jpeg"
                 ).circleCrop()
                     .into(binding.authorAvatar)
-                CoordinationControl.postCoordinationControl(post, binding.coordination)
+                if (post.coords != null){
+                    CoordinationControl.postCoordinationControl(post, binding.coordination)
+                }else{
+                    binding.coordination.visibility = View.GONE
+                }
                 binding.itemSettings.isVisible = post.ownedByMe
                 binding.itemSettings.setOnClickListener {
                     ItemMenu(
@@ -86,7 +90,6 @@ class PostDetailFragmentWithImage : Fragment(), PostMenuOnClick {
                 binding.link.text = post.link
                 binding.btnMore.visibility = View.GONE
                 binding.mentionPeople.isVisible = post.mentionIds.isNotEmpty()
-                binding.mentionPeople.setOnClickListener { TODO("listener.onMentionPeopleClick(post)") }
                 setVisibility()
             }
         }
